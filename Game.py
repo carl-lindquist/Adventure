@@ -1,10 +1,6 @@
 #Python Game
 
 
-def clearScreen():
-	import os
-	os.system('cls' if os.name == 'nt' else 'clear')
-
 
 class Character(object):
 
@@ -123,7 +119,12 @@ class Structure(object):
 				return self.layout[self.r][self.c]
 		else:
 			return None
-	
+
+
+def clearScreen():
+	import os
+	os.system('cls' if os.name == 'nt' else 'clear')
+
 
 # the Init
 
@@ -172,14 +173,12 @@ while True:
 		print "|%s|" % cRoom.character.name
 		print cRoom.character.dialogue
 
-	if (cRoom.items != None):
+	if (cRoom.items != None and not cRoom.visited):
 		print "You obtain:"
 		for i in cRoom.items:
 			print "  " + i
 		inventory += cRoom.items
 
-	#print "Direction (wasd): "
-	input = 0
 	while (True):
 		input = raw_input()
 		if (input in ['w', 'a', 's', 'd']):
@@ -188,6 +187,7 @@ while True:
 		elif (input == 'info' ):
 			print "Currently in %s." % home.name
 			print home.desc
+			print "Inventory: " + str(inventory)
 		else:
 			print "Pick another way: "
 
