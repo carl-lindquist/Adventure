@@ -172,8 +172,11 @@ while True:
 	elif (userInput == 'info' ):
 		print "Currently in \"%s\"." % structure.name
 		print structure.desc
-	elif (userInput[:3] == 'use' and userInput[4:] in inventory.items):
-		Adventure.tryItem(structure, inventory, userInput[4:])
+	elif (userInput[:3] == 'use' and userInput[4:]):
+		if (userInput[4:] in inventory.items):
+			Adventure.tryItem(structure, inventory, userInput[4:])
+		else:
+			print "No %s in inventory" % userInput[4:]
 	elif (userInput == 'i'):
 		Adventure.interact(structure, inventory)
 	else:
