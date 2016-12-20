@@ -34,7 +34,7 @@ class Inventory(object):
 	def printLines(self):
 		self.width = len(self.name) + 4
 		for i in self.items:
-			if (len(i) > self.width):
+			if (len(i) > self.width - 4):
 				self.width = len(i) + 4
 
 		lines = []

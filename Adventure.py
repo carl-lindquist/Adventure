@@ -28,7 +28,7 @@ def gameInit():
 		A big bed sits in the middle of this well decorated room. Dressers
 		and boxes abound. Ginger is curled up next to the bed.
 		Your mom is snoozing peacefully after a horrendously challenging row. 
-		""", ["Prius Keys"], Character("Mom", "(Sleepily) Make me a cup of tea?"))
+		""", ["Blue Mug"], Character("Mom", "(Sleepily) Make me a cup of tea?"))
 	layout[0][2].locked = True
 
 	layout[0][3] = Room("Hallway", """
@@ -71,7 +71,7 @@ def tryItem(structure, inventory, item):
 	usageString = ""
 	itemsAdded = []
 
-	#Living Room state 1
+	#Living Room - Books state 1   Note: Use multiple states for multiItem rooms
 	if (item == "Books" and room.name == "Living Room" and room.state == 0):
 		room.state = 1
 		inventory.items.remove(item)
@@ -83,12 +83,16 @@ def tryItem(structure, inventory, item):
 		"""
 		usageString += "You've filled the fireplace with awful books."
 
-	#Living Room state 2
+	#Living Room - Matches state 2
 	elif (item == "Matches" and room.name == "Living Room" and room.state == 1):
 		room.state = 2
 		inventory.items.remove(item)
 		room.character = None
 		structure.layout[0][2].locked = False
+		structure.layout[0][3].desc = """
+		End of the hall. The door to your left is slightly ajar!
+		Your hear snuffling noises inside.
+		"""
 		room.desc = """
 		A grand old room with a raging fireplace. Large wooden beams cross
 		over your head. A piano blocks a large window. The dog seems to have
@@ -98,7 +102,7 @@ def tryItem(structure, inventory, item):
 		 					You hear a door open somewhere.
 	 					"""
 
-	#Bedroom state 1
+	#Bedroom - Ripstick state 1
 	elif (item == "Ripstick" and room.name == "Bedroom" and room.state == 0):
 		room.state = 1
 		inventory.items.remove(item)
@@ -111,6 +115,30 @@ def tryItem(structure, inventory, item):
 		that were hiding behind him.
 		"""
 		usageString += "Sam takes the Ripstick to cruise around the house." 
+
+	#Kitchen - Blue Mug    Note: Some usages don't require a room state change
+	elif (item == "Blue Mug" and room.name == "Kitchen"):
+		inventory.items.remove(item)
+		inventory.items.append("Cup of Tea")
+		itemsAdded.append("Cup of Tea")
+		usageString += "You make a strong cup of black tea."
+
+	#Master Bedroom - Cup of Tea
+	elif (item == "Cup of Tea" and room.name == "Master Bedroom"):
+		inventory.items.remove(item)
+		room.desc = """
+		A big bed sits in the middle of this well decorated room. Dressers
+		and boxes abound.
+		"""
+		room.character = None
+		structure.layout[4][3].character = Character("Mom", "(Reading silently)") 
+		structure.layout[4][3].desc = """
+		A grand old room with a raging fireplace. Large wooden beams cross
+		over your head. A piano blocks a large window. Your mom is sipping tea
+		on the couch while reading ... GQ?
+		"""
+		usageString += "Your mom leaves the room to sip tea elsewhere."
+
 
 	else:
 		usageString += "Does nothing..."
