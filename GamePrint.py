@@ -32,6 +32,7 @@ def splitLines(length, text):
 	return lines
 
 def printGame(structure, inventory):
+	clearScreen()
 	from Game import Inventory, Character, Room, Structure
 	lineWidth = 70
 	room = structure.curRoom()

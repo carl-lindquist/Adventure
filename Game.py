@@ -54,6 +54,8 @@ class Room(object):
 		self.items = items
 		self.character = character
 		self.visited = False
+		self.state = 0
+		self.locked = False
 
 
 class Structure(object):
@@ -82,12 +84,20 @@ class Structure(object):
 		up, left, down, right = ' ', ' ', ' ', ' '
 		if (self.__isValidRoom(r-1, c)):
 			up = "W"
+		elif(self.__isLockedRoom(r-1, c)):
+			up = "X"
 		if (self.__isValidRoom(r, c-1)):
 			left = "A"
+		elif(self.__isLockedRoom(r, c-1)):
+			left = "X"
 		if (self.__isValidRoom(r+1, c)):
 			down = "S"
+		elif(self.__isLockedRoom(r+1, c)):
+			down = "X"
 		if (self.__isValidRoom(r, c+1)):
 			right = "D"
+		elif(self.__isLockedRoom(r, c+1)):
+			right = "X"
 		return [up, left, down, right]
 
 
@@ -97,7 +107,14 @@ class Structure(object):
 
 	def __isValidRoom(self, row, col):
 		if ((0 <= row < self.rowCount) and (0 <= col < self.colCount) and
-			 self.layout[row][col] != None):
+			 self.layout[row][col] != None and
+			 not self.layout[row][col].locked):
+			return True
+		return False
+
+	def __isLockedRoom(self, row, col):
+		if ((0 <= row < self.rowCount) and (0 <= col < self.colCount) and
+			 self.layout[row][col] != None and self.layout[row][col].locked):
 			return True
 		return False
 
@@ -122,7 +139,6 @@ class Structure(object):
 			print "Bad attemptMove() input"
 			return None
 
-		GamePrint.clearScreen()
 		self.curRoom().visited = True
 		if (self.__isValidRoom(attRow, attCol)):
 				self.setLocation(attRow, attCol)
@@ -157,8 +173,7 @@ while True:
 		print "Currently in \"%s\"." % structure.name
 		print structure.desc
 	elif (userInput[:3] == 'use' and userInput[4:] in inventory.items):
-		#Adventure.tryItem(structure, userInput[4:])
-		print "Try item not implemented"
+		Adventure.tryItem(structure, inventory, userInput[4:])
 	else:
 		print "Bad input"
 
