@@ -178,7 +178,6 @@ while True:
 		for i in cRoom.items:
 			print "  " + i
 
-
 	while (True):
 		input = raw_input()
 		if (input in ['w', 'a', 's', 'd']):
@@ -190,9 +189,7 @@ while True:
 		elif (input == 'info' ):
 			print "Currently in %s." % home.name
 			print home.desc
-			print "Inventory: " + str(inventory)
-		else:
-			print "Pick another way: "
+
 
 
 
