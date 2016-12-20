@@ -178,50 +178,49 @@ def interact(structure, inventory):
 	lineWidth = 65
 	print ""
 
-	if (room.character != None):
-		if (character.name == "Mom" and room.name == "Living Room" and room.state == 2):
-			room.state = 3
-			print "Carl:"
-			print "  Hey Mom, can I borrow the car keys?"
-			print ":Mom".rjust(lineWidth)
-			print "Sure, if you can find them.  ".rjust(lineWidth)
-			userInput = raw_input()
+	if (character.name == "Mom" and room.name == "Living Room" and room.state == 2):
+		room.state = 3
+		print "Carl:"
+		print "  Hey Mom, can I borrow the car keys?"
+		print ":Mom".rjust(lineWidth)
+		print "Sure, if you can find them.  ".rjust(lineWidth)
+		userInput = raw_input()
 
-			print "Carl:"
-			print "  Actually I think they're right next to you :)"
-			print ":Mom".rjust(lineWidth)
-			print "Oh you're right, here you go!  ".rjust(lineWidth)
-			itemsAdded.append("Prius Key")
-			inventory.items.append("Prius Key")
-			userInput = raw_input()
+		print "Carl:"
+		print "  Actually I think they're right next to you :)"
+		print ":Mom".rjust(lineWidth)
+		print "Oh you're right, here you go!  ".rjust(lineWidth)
+		itemsAdded.append("Prius Key")
+		inventory.items.append("Prius Key")
+		userInput = raw_input()
 
-			GamePrint.printWin()
-			print "By locating the Prius Keys you are now free to roam LA. Have fun!"
+		GamePrint.printWin()
+		print "By locating the Prius Keys you are now free to roam LA. Have fun!"
 
-			import sys
-			sys.exit()
+		import sys
+		sys.exit()
 
-		elif (character.name == "Mom" and room.name == "Master Bedroom" and "Cup of Tea" in inventory.items):
+	elif (character.name == "Mom" and room.name == "Master Bedroom" and "Cup of Tea" in inventory.items):
 
-			print "Carl:"
-			print "  Here you go mom."
-			print ":Mom".rjust(lineWidth)
-			print "Thanks Bub, I needed a twenty.  ".rjust(lineWidth)
-			print "\nYour mom leaves the room to sip tea elsewhere."
-			userInput = raw_input()
+		print "Carl:"
+		print "  Here you go mom."
+		print ":Mom".rjust(lineWidth)
+		print "Thanks Bub, I needed a twenty.  ".rjust(lineWidth)
+		print "\nYour mom leaves the room to sip tea elsewhere."
+		userInput = raw_input()
 
-			inventory.items.remove("Cup of Tea")
-			room.desc = """
-			A big bed sits in the middle of this well decorated room. Dressers
-			and boxes abound.
-			"""
-			room.character = None
-			structure.layout[4][3].character = Character("Mom", "(Reading silently)") 
-			structure.layout[4][3].desc = """
-			A grand old room with a raging fireplace. Large wooden beams cross
-			over your head. A piano blocks a large window. Your mom is sipping tea
-			on the couch while reading ... GQ?
-			"""
+		inventory.items.remove("Cup of Tea")
+		room.desc = """
+		A big bed sits in the middle of this well decorated room. Dressers
+		and boxes abound.
+		"""
+		room.character = None
+		structure.layout[4][3].character = Character("Mom", "(Reading silently)") 
+		structure.layout[4][3].desc = """
+		A grand old room with a raging fireplace. Large wooden beams cross
+		over your head. A piano blocks a large window. Your mom is sipping tea
+		on the couch while reading ... GQ?
+		"""
 
 		GamePrint.printGame(structure, inventory)
 		if (itemsAdded != []):

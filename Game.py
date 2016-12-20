@@ -180,10 +180,9 @@ while True:
 			Adventure.tryItem(structure, inventory, userInput[4:])
 		else:
 			print "No %s in inventory" % userInput[4:]
-	elif (userInput == 'i'):
+	elif (userInput == 'i' and cRoom.character != None):
 		Adventure.interact(structure, inventory)
-	else:
-		print "Bad input"
+
 
 
 
