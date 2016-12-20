@@ -14,20 +14,20 @@ def clearScreen():
 	os.system('cls' if os.name == 'nt' else 'clear')
 
 def splitLines(length, text):
-
 	words = text.split()
-	lines = []
+	lines = [""]
 	lNum = 0
-
-	for l in range(10):
-		lines.append("")
 
 	for w in words:
 		if (len(lines[lNum]) + len(w) + 1 <= length):
 			lines[lNum] += " "+w
 		else:
+			lines.append("")
 			lNum += 1
 			lines[lNum] += " "+w
+
+	while(len(lines) <10):
+		lines.append("")
 
 	return lines
 
