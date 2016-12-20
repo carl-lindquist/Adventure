@@ -150,7 +150,7 @@ class Structure(object):
 
 #Init
 [structure, inventory] = Adventure.gameInit()
-GamePrint.clearScreen()
+raw_input("Press 'Enter' to begin: ")
 GamePrint.printGame(structure, inventory)
 cRoom = structure.curRoom()
 
@@ -174,6 +174,8 @@ while True:
 		print structure.desc
 	elif (userInput[:3] == 'use' and userInput[4:] in inventory.items):
 		Adventure.tryItem(structure, inventory, userInput[4:])
+	elif (userInput == 'i'):
+		Adventure.interact(structure, inventory)
 	else:
 		print "Bad input"
 

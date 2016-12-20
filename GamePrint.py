@@ -77,6 +77,57 @@ def printGame(structure, inventory):
 			print l
 	print "-" * lineWidth
 
+def printWin():
+	print "" * 3
+	print """
+    __   __                           _         _ 
+    \ \ / /                          (_)       | |
+     \ V /   ___   _   _   __      __ _  _ __  | |
+      \ /   / _ \ | | | |  \ \ /\ / /| || '_ \ | |
+      | |  | (_) || |_| |   \ V  V / | || | | ||_|
+      \_/   \___/  \__,_|    \_/\_/  |_||_| |_|(_)
+	"""
+
+def printLose():
+	print "" * 3
+	print """
+    __   __                  _                    _ 
+    \ \ / /                 | |                  | |
+     \ V /   ___   _   _    | |  ___   ___   ___ | |
+      \ /   / _ \ | | | |   | | / _ \ / __| / _ \| |
+      | |  | (_) || |_| |   | || (_) |\__ \|  __/|_|
+      \_/   \___/  \__,_|   |_| \___/ |___/ \___|(_)                                         
+	"""
+
+def printStart(title, text):
+	clearScreen()
+	print title
+
+	print "-" * 70
+	print ""
+	
+	lines = splitLines(50, text)
+	for l in lines:
+		if l:
+			print l
+
+	print ""
+
+	print "Controls:"
+	print "        'wasd'   move in desired direction"
+	print "  'use <item>'   use an item in your inventory"
+	print "           'i'   interact with a character"
+	print "        'info'   print the name of the current structure"
+	
+	print ""
+	print ""
+
+
+
+
+
+
+
 
 
 

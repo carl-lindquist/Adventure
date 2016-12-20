@@ -16,6 +16,7 @@
 
 def gameInit():
 	from Game import Inventory, Character, Room, Structure
+	import GamePrint
 
 	layout = [[None for x in range(5)] for y in range(5)] 
 
@@ -55,6 +56,25 @@ def gameInit():
 	inventory = Inventory("Pockets", 5)
 	structure = Structure("The House", "3516", layout)
 	structure.setLocation(2, 2)
+
+	startSplash = """
+        _____ 
+       |  ___| 
+       | |__ ___  ___ __ _ _ __   ___ 
+       |  __/ __|/ __/ _` | '_ \ / _ \ 
+       | |__\__ \ (_| (_| | |_) |  __/ 
+       \____/___/\___\__,_| .__/ \___| 
+                          | | 
+                          |_| 
+    	"""
+	startText = """
+    	You are a young man named Carl, and you've been couped
+    	up inside for the last three days writing code! The only way
+    	out of this misery is to locate your mother's car keys. Of course
+    	this is easier said than done. Good luck!
+    	"""
+	GamePrint.printStart(startSplash, startText)
+
 	return [structure, inventory]
 
 
@@ -139,7 +159,6 @@ def tryItem(structure, inventory, item):
 		"""
 		usageString += "Your mom leaves the room to sip tea elsewhere."
 
-
 	else:
 		usageString += "Does nothing..."
 
@@ -156,8 +175,49 @@ def tryItem(structure, inventory, item):
 		if l:
 			print "  " + l
 
+#similar methodology to tryItem, used for interacting with characters
+def interact(structure, inventory):
+	from Game import Inventory, Character, Room, Structure
+	import GamePrint
 
+	room = structure.curRoom()
+	character = room.character if room.character != None else ""
+	usageString = ""
+	itemsAdded = []
+	print ""
 
+	if (character.name == "Mom" and room.name == "Living Room" and room.state == 2):
+		room.state = 3
+		print "Carl:"
+		print "  Hey Mom, can I borrow the car keys?"
+		print ":Mom".rjust(50)
+		print "Sure, if you can find them.  ".rjust(50)
+		userInput = raw_input()
+		while(userInput != 'i'):
+			userInput = raw_input()
+
+		print "Carl:"
+		print "  Actually I think they're right next to you :)"
+		print ":Mom".rjust(50)
+		print "Oh you're right, here you go!  ".rjust(50)
+		itemsAdded.append("Prius Key")
+		inventory.items.append("Prius Key")
+
+		userInput = raw_input()
+		while(userInput != 'i'):
+			userInput = raw_input()
+		GamePrint.printWin()
+		print "By locating the Prius Keys you are now free to roam LA. Have fun!"
+		raw_input("Press any key to exit: ")
+		import sys
+		sys.exit()
+
+	GamePrint.printGame(structure, inventory)
+	if (itemsAdded != []):
+		print "You obtain: "
+		for i in itemsAdded:
+			print "  "+i
+		print ""
 
 
 
