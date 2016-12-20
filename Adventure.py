@@ -195,9 +195,9 @@ def interact(structure, inventory):
 			inventory.items.append("Prius Key")
 			userInput = raw_input()
 
+			GamePrint.printWin()
 			print "By locating the Prius Keys you are now free to roam LA. Have fun!"
 
-			raw_input("\nPress any key to exit: ")
 			import sys
 			sys.exit()
 

@@ -135,6 +135,9 @@ class Structure(object):
 		elif (direction == 'd'):
 			attRow = self.r
 			attCol = self.c + 1
+		elif (direction == ""):
+			attRow = self.r
+			attCol = self.c
 		else:
 			print "Bad attemptMove() input"
 			return None
@@ -158,7 +161,7 @@ cRoom = structure.curRoom()
 #The Game
 while True:
 	userInput = raw_input()
-	if (userInput in ['w', 'a', 's', 'd']):
+	if (userInput in ['w', 'a', 's', 'd', ""]):
 		structure.attemptMove(userInput)
 		cRoom = structure.curRoom()
 		if (cRoom.items != []):
@@ -172,7 +175,7 @@ while True:
 	elif (userInput == 'info' ):
 		print "Currently in \"%s\"." % structure.name
 		print structure.desc
-	elif (userInput[:3] == 'use' and userInput[4:]):
+	elif (userInput[:3] == 'use' or userInput[:3] == 'Use' and userInput[4:]):
 		if (userInput[4:] in inventory.items):
 			Adventure.tryItem(structure, inventory, userInput[4:])
 		else:
