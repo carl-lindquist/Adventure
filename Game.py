@@ -26,7 +26,7 @@ class Inventory(object):
 
 
 	def printLines(self):
-		self.width = 15
+		self.width = len(self.name) + 4
 		for i in self.items:
 			if (len(i) > self.width):
 				self.width = len(i) + 4
@@ -139,7 +139,7 @@ building[2][2] = Room("Bedroom", """
 	in front of you.
 """, None, sam)
 
-building[0][3] = Room("Hallway", "", None, None)
+building[0][3] = Room("Hallway", "", ["Gargantuan Orangutan"], Character("Gargantuan Orangutan", "Gigantopithicus"))
 building[1][3] = Room("Hallway", "", None, None)
 building[2][3] = Room("Hallway", "", None, None)
 building[3][3] = Room("Hallway", "", None, None)
@@ -163,27 +163,29 @@ inventory = Inventory("Satchel", 5)
 home = Structure("The House", "3516", building)
 
 home.setLocation(2, 2)
-
+cRoom = home.curRoom()
 
 
 
 #The Game
 GamePrint.clearScreen()
 while True:
-	cRoom = home.curRoom()
 
 	GamePrint.printGame(home, inventory)
 
 	if (cRoom.items != None and not cRoom.visited):
-		print "You obtain:"
+ 		print "You obtain:"
 		for i in cRoom.items:
 			print "  " + i
-		inventory.addItems(cRoom.items)
+
 
 	while (True):
 		input = raw_input()
 		if (input in ['w', 'a', 's', 'd']):
 			home.attemptMove(input)
+			cRoom = home.curRoom()
+			if (cRoom.items != None and not cRoom.visited):
+				inventory.addItems(cRoom.items)
 			break
 		elif (input == 'info' ):
 			print "Currently in %s." % home.name

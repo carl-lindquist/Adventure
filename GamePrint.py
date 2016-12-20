@@ -26,7 +26,7 @@ def splitLines(length, text):
 			lNum += 1
 			lines[lNum] += " "+w
 
-	while(len(lines) <10):
+	while(len(lines) <10): #guarantees enough lines for printGame
 		lines.append("")
 
 	return lines
@@ -40,22 +40,22 @@ def printGame(structure, inventory):
 
 	print "-" * lineWidth
 
-	lines = splitLines(lineWidth - 15, room.desc)
+	descLines = splitLines(lineWidth - 15, room.desc)
 	[up, left, down, right] = structure.availableMoves()
 	if (room.visited):
 		print " ----------- " + ("[%s]" % room.name).center(lineWidth - 13)
 	else:
 		print " ----------- " + ("{{%s}}" % room.name).center(lineWidth - 13)
-	print "|    |%s|    |  " %up + lines[0]
-	print "| |%s|   |%s| |  " %(left, right) + lines[1]
-	print "|    |%s|    |  " %down + lines[2]
-	print " -----------   " + lines[3]
-	for l in lines[4:]:
+	print "|    |%s|    |  " %up + descLines[0]
+	print "| |%s|   |%s| |  " %(left, right) + descLines[1]
+	print "|    |%s|    |  " %down + descLines[2]
+	print " -----------   " + descLines[3]
+	for l in descLines[4:]:
 		if(l):
 			print " "*15 + l
 	print ""
 
-	lines = [] #empty lines for printing bp and char dialogue
+
 	invLines = inventory.printLines()
 	if(character != None):
 		dialogue = character.dialogue
@@ -65,8 +65,7 @@ def printGame(structure, inventory):
 
 		lNum = 0
 		for l in invLines[1:]:
-			lines.append(l + "  " + diaLines[lNum])
-			print lines[lNum]
+			print l + "  " + diaLines[lNum]
 			lNum += 1
 
 		for l in diaLines[len(inventory.items)+1:]:
