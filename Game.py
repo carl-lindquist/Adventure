@@ -1,12 +1,43 @@
 #Python Game
 
-
+import GamePrint
 
 class Character(object):
 
 	def __init__(self, name, dialogue):
 		self.name = name
 		self.dialogue = dialogue
+
+class Inventory(object):
+
+	def __init__(self, name, size):
+		self.name = name
+		self.maxSize = size
+		self.items = []
+		self.width = 0
+
+	def addItems(self, items):
+		for i in items:
+			if len(self.items) < self.maxSize:
+				self.items.append(i)
+
+	def removeItem(self, item):
+		self.items.remove(item)
+
+
+	def printLines(self):
+		self.width = 15
+		for i in self.items:
+			if (len(i) > self.width):
+				self.width = len(i) + 4
+
+		lines = []
+		lines.append("/"+self.name.center(self.width)+"\\")
+		lines.append("|"+"-"*(self.width)+"|")
+		for i in self.items:
+			lines.append("|  "+i.ljust(self.width - 2)+"|")
+		lines.append("\\"+ "_" * (self.width) + "/")
+		return lines
 
 
 class Room(object):
@@ -39,25 +70,10 @@ class Structure(object):
 	def curRoom(self):
 		return self.layout[self.r][self.c]
 
-	def printRoom(self):
-		lineWidth = 69 #width of text box
-		words = self.curRoom().desc.split()
-		descLines = []
-		lNum = 0
-
-		for l in range(10): #max number of descriptions lines (limited for style)
-			descLines.append("")
-
-		for w in words:
-			if (len(descLines[lNum]) + len(w) + 1 <= lineWidth - 15):
-				descLines[lNum] += " "+w
-			else:
-				lNum += 1
-				descLines[lNum] += " "+w
-
+	def availableMoves(self):
 		r = self.r
 		c = self.c
-		up, down, left, right = ' ', ' ', ' ', ' '
+		up, left, down, right = ' ', ' ', ' ', ' '
 		if (self.__isValidRoom(r-1, c)):
 			up = "W"
 		if (self.__isValidRoom(r, c-1)):
@@ -66,20 +82,8 @@ class Structure(object):
 			down = "S"
 		if (self.__isValidRoom(r, c+1)):
 			right = "D"
+		return [up, left, down, right]
 
-		print "-" * lineWidth
-		if (self.curRoom().visited):
-			print " ----------- " + ("[%s]" % self.curRoom().name).center(lineWidth - 13)
-		else:
-			print " ----------- " + ("{{%s}}" % self.curRoom().name).center(lineWidth - 13)
-		print "|    |%s|    |  " %up + descLines[0]
-		print "| |%s|   |%s| |  " %(left, right) + descLines[1]
-		print "|    |%s|    |  " %down + descLines[2]
-		print " -----------   " + descLines[3]
-		for l in descLines[4:]:
-			if(l):
-				print " "*15 + l
-		print "-" * lineWidth
 
 	def setLocation(self, row, column):
 		self.r = row
@@ -112,7 +116,7 @@ class Structure(object):
 			print "Bad attemptMove() input"
 			return None
 
-		clearScreen()
+		GamePrint.clearScreen()
 		self.curRoom().visited = True
 		if (self.__isValidRoom(attRow, attCol)):
 				self.setLocation(attRow, attCol)
@@ -121,9 +125,7 @@ class Structure(object):
 			return None
 
 
-def clearScreen():
-	import os
-	os.system('cls' if os.name == 'nt' else 'clear')
+
 
 
 # the Init
@@ -155,7 +157,7 @@ building[1][4] = Room("Kitchen", """
 """,
 	["Matches"], None)
 
-inventory = []
+inventory = Inventory("Satchel", 5)
 
 
 home = Structure("The House", "3516", building)
@@ -163,21 +165,20 @@ home = Structure("The House", "3516", building)
 home.setLocation(2, 2)
 
 
+
+
 #The Game
-clearScreen()
+GamePrint.clearScreen()
 while True:
 	cRoom = home.curRoom()
-	home.printRoom()
 
-	if (cRoom.character != None):
-		print "|%s|" % cRoom.character.name
-		print cRoom.character.dialogue
+	GamePrint.printGame(home, inventory)
 
 	if (cRoom.items != None and not cRoom.visited):
 		print "You obtain:"
 		for i in cRoom.items:
 			print "  " + i
-		inventory += cRoom.items
+		inventory.addItems(cRoom.items)
 
 	while (True):
 		input = raw_input()
