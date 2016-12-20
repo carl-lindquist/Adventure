@@ -78,7 +78,8 @@ def printGame(structure, inventory):
 	print "-" * lineWidth
 
 def printWin():
-	print "" * 3
+	print "" 
+	print "-" * 70
 	print """
     __   __                           _         _ 
     \ \ / /                          (_)       | |
@@ -87,9 +88,11 @@ def printWin():
       | |  | (_) || |_| |   \ V  V / | || | | ||_|
       \_/   \___/  \__,_|    \_/\_/  |_||_| |_|(_)
 	"""
+	print ""
 
 def printLose():
-	print "" * 3
+	print "" 
+	print "-" * 70
 	print """
     __   __                  _                    _ 
     \ \ / /                 | |                  | |
@@ -98,6 +101,7 @@ def printLose():
       | |  | (_) || |_| |   | || (_) |\__ \|  __/|_|
       \_/   \___/  \__,_|   |_| \___/ |___/ \___|(_)                                         
 	"""
+	print ""
 
 def printStart(title, text):
 	clearScreen()

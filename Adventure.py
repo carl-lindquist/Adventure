@@ -143,6 +143,13 @@ def tryItem(structure, inventory, item):
 		itemsAdded.append("Cup of Tea")
 		usageString += "You make a strong cup of black tea."
 
+	#Kitche - Knife
+	elif (item == "Knife" and room.name == "Kitchen"):
+		GamePrint.printLose()
+		print "Oh no! You sliced up some havarti and completely forgot about leaving!"
+		import sys
+		sys.exit()
+
 	#Master Bedroom - Cup of Tea
 	elif (item == "Cup of Tea" and room.name == "Master Bedroom"):
 		inventory.items.remove(item)
@@ -184,22 +191,23 @@ def interact(structure, inventory):
 	character = room.character if room.character != None else ""
 	usageString = ""
 	itemsAdded = []
+	lineWidth = 65
 	print ""
 
 	if (character.name == "Mom" and room.name == "Living Room" and room.state == 2):
 		room.state = 3
 		print "Carl:"
 		print "  Hey Mom, can I borrow the car keys?"
-		print ":Mom".rjust(50)
-		print "Sure, if you can find them.  ".rjust(50)
+		print ":Mom".rjust(lineWidth)
+		print "Sure, if you can find them.  ".rjust(lineWidth)
 		userInput = raw_input()
 		while(userInput != 'i'):
 			userInput = raw_input()
 
 		print "Carl:"
 		print "  Actually I think they're right next to you :)"
-		print ":Mom".rjust(50)
-		print "Oh you're right, here you go!  ".rjust(50)
+		print ":Mom".rjust(lineWidth)
+		print "Oh you're right, here you go!  ".rjust(lineWidth)
 		itemsAdded.append("Prius Key")
 		inventory.items.append("Prius Key")
 
@@ -208,7 +216,7 @@ def interact(structure, inventory):
 			userInput = raw_input()
 		GamePrint.printWin()
 		print "By locating the Prius Keys you are now free to roam LA. Have fun!"
-		raw_input("Press any key to exit: ")
+		raw_input("\nPress any key to exit: ")
 		import sys
 		sys.exit()
 
