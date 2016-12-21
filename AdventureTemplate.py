@@ -47,12 +47,12 @@ def gameInit():
 	layout = [[None for x in range(structureCols)] for y in range(structureRows)] 
 	
 	"""
-		<ADD SOME CHANGES TO LAYOUT HERE>
+		<ADD SOME CHANGES TO LAYOUT[][] HERE>
 	"""
 	
 	startSplash = """
     	<YOUR START SPLASH HERE>
-    	I recommend:
+    	I recommend using:
     	http://patorjk.com/software/taag/#p=display&f=Graffiti&t=Type%20Something%20
     	"""
 	startText = """
