@@ -2,35 +2,47 @@
 	Carl Lindquist
 	Dec 19, 2016
 
-	Adventure: "Test Game"
+	Adventure: "Escape from Home"
 
-	This file contains all the game logic for a specific game for the platform Adventure
+	## Include this file in the same directory as Game.py and GamePrint.py ##
+
+	This file contains all the game logic for a specific game for the platform Adventure.
 	Can be configured to be any game within the framework of Adventure.
-	Must contain methods: gameInit(), as well as a dictionary describing
-	rooms changed states depending on items used.
-	tryItem() changes one room into the other.
+	Must contain methods: gameInit(), tryItem(), and interact(). Each method defines
+	the game logic to be executed by Game.py
 
 """
 
 
+"""
+[desc]	A vital initialization function which sets up the specific Adventure.
+		Can and should be customized to create your own Adventure!
+		Must include:
+			imports for Game and GamePrint
+			An inventory
+			A structure
+				assumes location [0][0]
+			return [structure, inventory]
 
+			Should include:
+				setLocation() to a specific room
+				Rooms, Characters, and Items
+				A splash and start text to explain the adventure
+					sent to printStart()
+
+
+[ret]	Structure and Inventory as a tuple (in that order)
+		This return is necessary for the game to run
+"""
 def gameInit():
 	from Game import Inventory, Character, Room, Structure
 	import GamePrint
 
+	###-------------------- Designer Code Here --------------------###
+
+	#Array to become a structure
 	layout = [[None for x in range(5)] for y in range(5)] 
-
-	layout[2][2] = Room("Bedroom", """
-		Two beds, side by side. Light shines in through two windows
-		in front of you.
-		""", [], Character("Sam", "Hey brother!"))
-
-	layout[0][2] = Room("Master Bedroom", """
-		A big bed sits in the middle of this well decorated room. Dressers
-		and boxes abound. Ginger is curled up next to the bed.
-		Your mom is snoozing peacefully after a horrendously challenging row. 
-		""", ["Blue Mug"], Character("Mom", "(Sleepily) Make me a cup of tea?"))
-	layout[0][2].locked = True
+	
 
 	layout[0][3] = Room("Hallway", """
 		End of the hall. There's a door to your left, but it's locked from
@@ -40,18 +52,28 @@ def gameInit():
 	layout[2][3] = Room("Hallway", "", [], None)
 	layout[3][3] = Room("Hallway", "", [], None)
 
+	layout[2][2] = Room("Bedroom", """
+		Two beds, side by side. Light shines in through two windows
+		in front of you.
+		""", [], Character("Sam", "Hey brother!"))
+
+	#Note: This room has an extra optional arg specified to "lock" the room
+	layout[0][2] = Room("Master Bedroom", """
+		A big bed sits in the middle of this well decorated room. Dressers
+		and boxes abound. Ginger is curled up next to the bed.
+		Your mom is snoozing peacefully after a horrendously challenging row. 
+		""", ["Blue Mug"], Character("Mom", "(Sleepily) Make me a cup of tea?"), 'lock')
 
 	layout[4][3] = Room("Living Room", """
 		A grand old room with a fireplace. Large
 		wooden beams cross over your head. A piano blocks a large 
 		window. The fireplace looks workable. A dog stands
 		guard by the door.
-		""", ["Ripstick"], Character("Ginger", "Rrraow"))
+		""", ["Ripstick"], Character("Ginger", "Woof"))
 
 	layout[1][4] = Room("Kitchen", """
-	A small kitchen with blue tile countertops.
-	""",
-	["Matches", "Knife"], None)
+		A small kitchen with blue tile countertops.
+		""", ["Matches", "Knife"], None)
 
 	inventory = Inventory("Pockets", 5)
 	structure = Structure("The House", "3516", layout)
@@ -75,21 +97,41 @@ def gameInit():
     	"""
 	GamePrint.printStart(startSplash, startText)
 
+	###-------------------- Designer Code Ends Here --------------------###
+
 	return [structure, inventory]
 
 
 """
-	A set of conditionals to change the game. This method of doing things
-	is really bad. User Should change this to modify the Game's logic
+[desc]	Vital funciton which modifies the game's state based on ITEM USAGE.
+		Designer should create an if-elif-else statement to describe the changes
+		to be made to the game-state for any item used.
+		Must include:
+			imports for Game.py classes and GamePrint.py
+			usageString, itemsAdded
 
+		Should include:
+			imports for gameWin() and gameLose()
+			Changes to rooms and characters
+				Use room.state changes for ordered item usage
+			Changes to the player's inventory
+			Printing of text
+
+		May include:
+			A winning or losing scenario (gameLose() or gameWin())
+
+[args]	A Structure and an Inventory to work from and/or modify
 """
 def tryItem(structure, inventory, item):
 	from Game import Inventory, Character, Room, Structure
+	from Game import gameWin, gameLose
 	import GamePrint
 
 	room = structure.curRoom()
 	usageString = ""
 	itemsAdded = []
+
+	###-------------------- Designer Code Here --------------------###
 
 	#Living Room - Books state 1   Note: Use multiple states for multiItem rooms
 	if (item == "Books" and room.name == "Living Room" and room.state == 0):
@@ -134,7 +176,7 @@ def tryItem(structure, inventory, item):
 		in front of you. Now that Sam has left, you notice all the terrible books
 		that were hiding behind him.
 		"""
-		usageString += "Sam takes the Ripstick to cruise around the house." 
+		usageString += "Sam takes the Ripstick to cruise around the house."
 
 	#Kitchen - Blue Mug    Note: Some usages don't require a room state change
 	elif (item == "Blue Mug" and room.name == "Kitchen"):
@@ -143,12 +185,15 @@ def tryItem(structure, inventory, item):
 		itemsAdded.append("Cup of Tea")
 		usageString += "You make a strong cup of black tea."
 
-	#Kitche - Knife
+	#Kitchen - Knife  Note: GAMEOVER
 	elif (item == "Knife" and room.name == "Kitchen"):
-		GamePrint.printLose()
-		print "Oh no! You sliced up some havarti and completely forgot about leaving!"
-		import sys
-		sys.exit()
+		gameLose("""
+			Oh no! You sliced up some havarti and 
+		 	completely forgot about leaving! Instead of exploring, you stay at
+		 	home all day pigging out...not so bad.
+			""")
+
+	###-------------------- Designer Code Ends Here --------------------###
 
 	else:
 		usageString += "Does nothing..."
@@ -161,14 +206,33 @@ def tryItem(structure, inventory, item):
 		print ""
 
 	print "Used %s:" % item
-	usageLines = GamePrint.splitLines(50, usageString)
-	for l in usageLines:
-		if l:
-			print "  " + l
+	GamePrint.formattedPrint(GamePrint.lineWidth - 20, usageString)
 
-#similar methodology to tryItem, used for interacting with characters
+
+"""
+[desc]	Vital funciton which modifies the game's state based on CHARACTER INTERACTION.
+		Designer should create an if-elif-else statement to describe the changes
+		to be made to the game-state for any character interactions. Note that
+		these interactions can use and/or check for items in the inventory.
+		Must include:
+			imports for Game.py classes and GamePrint.py
+			usageString, itemsAdded
+
+		Should include:
+			imports for gameWin() and gameLose()
+			Changes to rooms and characters
+				Use room.state changes for ordered item usage
+			Changes to the player's inventory
+			Printing of text
+
+		May include:
+			A winning or losing scenario (gameLose() or gameWin())
+
+[args]	A Structure and an Inventory to work from and/or modify
+"""
 def interact(structure, inventory):
 	from Game import Inventory, Character, Room, Structure
+	from Game import gameWin, gameLose
 	import GamePrint
 
 	room = structure.curRoom()
@@ -177,6 +241,8 @@ def interact(structure, inventory):
 	itemsAdded = []
 	lineWidth = 65
 	print ""
+
+	###-------------------- Designer Code Here --------------------###
 
 	if (character.name == "Mom" and room.name == "Living Room" and room.state == 2):
 		room.state = 3
@@ -194,13 +260,14 @@ def interact(structure, inventory):
 		inventory.items.append("Prius Key")
 		userInput = raw_input()
 
-		GamePrint.printWin()
-		print "By locating the Prius Keys you are now free to roam LA. Have fun!"
+		gameWin("""
+			By locating the Prius Keys you are now free to roam Los Angeles.
+			Have fun!
+			""")
 
-		import sys
-		sys.exit()
 
-	elif (character.name == "Mom" and room.name == "Master Bedroom" and "Cup of Tea" in inventory.items):
+	elif (character.name == "Mom" and room.name == "Master Bedroom"  
+		and "Cup of Tea" in inventory.items):
 
 		print "Carl:"
 		print "  Here you go mom."
@@ -211,16 +278,18 @@ def interact(structure, inventory):
 
 		inventory.items.remove("Cup of Tea")
 		room.desc = """
-		A big bed sits in the middle of this well decorated room. Dressers
-		and boxes abound.
-		"""
+			A big bed sits in the middle of this well decorated room. Dressers
+			and boxes abound.
+			"""
 		room.character = None
 		structure.layout[4][3].character = Character("Mom", "(Reading silently)") 
 		structure.layout[4][3].desc = """
-		A grand old room with a raging fireplace. Large wooden beams cross
-		over your head. A piano blocks a large window. Your mom is sipping tea
-		on the couch while reading ... GQ?
-		"""
+			A grand old room with a raging fireplace. Large wooden beams cross
+			over your head. A piano blocks a large window. Your mom is sipping tea
+			on the couch while reading ... GQ?
+			"""
+
+	###-------------------- Designer Code Ends Here --------------------###
 
 		GamePrint.printGame(structure, inventory)
 		if (itemsAdded != []):

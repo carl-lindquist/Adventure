@@ -2,17 +2,27 @@
 	Carl Lindquist
 	Dec 19, 2016
 
-	Library to print the status of a game(currently called Adventure)
-	to the terminal.
+	## Include this file in the same directory as Game.py and Adventure.py ##
+	
+	A library containing all the print methods to display the state of an
+	"Adventure" game to the terminal.
 """
 
 
-
+lineWidth = 70 #Designer Parameter to set up terminal width
 
 def clearScreen():
 	import os
 	os.system('cls' if os.name == 'nt' else 'clear')
 
+"""
+[desc]	Splits text into lines up to a specified length
+
+[length] Maximum line length
+[text] Text to be split
+
+[ret]	List of strings
+"""
 def splitLines(length, text):
 	words = text.split()
 	lines = [""]
@@ -31,10 +41,33 @@ def splitLines(length, text):
 
 	return lines
 
+
+"""
+[desc]	Prints text in lines up to length. Also removes whitespace/newlines
+
+[length] Maximum line length
+[text] Text to be printed
+
+"""
+def formattedPrint(length, text):
+	if (text):
+		lines = splitLines(length, text)
+		for l in lines:
+			if l:
+				print " " + l
+
+
+"""
+[desc]	Complex print function to display the current state of an 
+		"Adventure" game.
+
+[args]	Structure and Inventory to gather information about the
+		current game-state from
+"""
 def printGame(structure, inventory):
 	clearScreen()
 	from Game import Inventory, Character, Room, Structure
-	lineWidth = 70
+
 	room = structure.curRoom()
 	character = room.character
 
@@ -77,9 +110,9 @@ def printGame(structure, inventory):
 			print l
 	print "-" * lineWidth
 
-def printWin():
+def printWin(text):
 	print "" 
-	print "-" * 70
+	print "-" * lineWidth
 	print """
     __   __                           _         _ 
     \ \ / /                          (_)       | |
@@ -89,10 +122,12 @@ def printWin():
       \_/   \___/  \__,_|    \_/\_/  |_||_| |_|(_)
 	"""
 	print ""
+	formattedPrint(lineWidth - 20, text)
+	print ""
 
-def printLose():
+def printLose(text):
 	print "" 
-	print "-" * 70
+	print "-" * lineWidth
 	print """
     __   __                  _                    _ 
     \ \ / /                 | |                  | |
@@ -102,6 +137,8 @@ def printLose():
       \_/   \___/  \__,_|   |_| \___/ |___/ \___|(_)                                         
 	"""
 	print ""
+	formattedPrint(lineWidth - 20, text)
+	print ""
 
 def printStart(title, text):
 	clearScreen()
@@ -109,12 +146,7 @@ def printStart(title, text):
 
 	print "-" * 70
 	print ""
-	
-	lines = splitLines(50, text)
-	for l in lines:
-		if l:
-			print l
-
+	formattedPrint(lineWidth - 20, text)
 	print ""
 
 	print "Controls:"
