@@ -41,8 +41,8 @@ def gameInit():
 	###-------------------- Add Designer Code Here --------------------###
 
 	#Array to become a structure
-	structureRows = #< SPECIFY STRUCTURE WIDTH >#
-	structureCols = #< SPECIFY STRUCTURE LENGTH >#
+	structureRows = #< SPECIFY STRUCTURE LENGTH >#
+	structureCols = #< SPECIFY STRUCTURE WIDTH >#
 	#Indexing is: layout[row][column]
 	layout = [[None for x in range(structureCols)] for y in range(structureRows)] 
 	
