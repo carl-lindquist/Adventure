@@ -69,7 +69,7 @@ def printGame(structure, inventory):
 			print l + "  " + diaLines[lNum]
 			lNum += 1
 
-		for l in diaLines[len(inventory.items)+1:]:
+		for l in diaLines[len(inventory.items) + 2:]:
 			if (l):
 				print " " * (inventory.width + 4) + l
 	else:
