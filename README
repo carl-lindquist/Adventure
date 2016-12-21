@@ -13,37 +13,36 @@ github: carllindquist
 
 -------------------------------------------------
 
+-- Description
+
+"Adventure" is a small-scale text-based RPG platform. Desginers should create
+an Adventure.py file (mimicking the one provided here) to design the game logic
+for any game they want to create! Events (item usages and/or 
+character interactions) can change just about anything! 
+My hope is that educators use this to teach students simple programming and/or 
+game design! At the very lest it teaches you just how complex games are :)
+
 
 
 -- Instructions to play the game:
 
-	Place Game.py, Adventure.py, and GamePrint in the same folder
+	Place Game.py, Adventure.py, and GamePrint.py in the same folder
 	Navigate to that directory in Terminal/Powershell
 	Resize shell to at least 75 chars
 	enter "python Game.py"
 
 
 
-
--- Description
-
-"Adventure" is a small-scale text-based RPG platform. Desginers should create
-an Adventure.py file (mimicking the one provided here) to design the game logic
-for any game they want to create! Because the item usage and character 
-interaction functions have access to the entire state of the game, 
-an event (item usage or character interaction) can change just about anything! 
-My hope is that educators use this to teach students simple programming and/or 
-game design! At the very lest it teaches you just how complex games are :)
-
-
-
 -- Suggested Game Design flow:
 
 	Play included Adventure to get a feel for the game
+	Think of important items, characters, rooms, events, etc.
+	Lay out a drawing of the map with characters/items
+	Design the inital game-state 
 
-	Think of important items, character, rooms, events, etc.
-	Lay out a drawing of the map
-	Design the inital game-state
+	Rename Adventure.py to SampleAdventure.py
+	Rename AdventureTemplate.py to Adventure.py
+	Fill out the gameInit() function using your design
 	TEST GAME by running "python Game.py"
 
 	Add some game-state changes using character interactions and/or item usages

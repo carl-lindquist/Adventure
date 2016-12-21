@@ -41,7 +41,10 @@ def gameInit():
 	###-------------------- Designer Code Here --------------------###
 
 	#Array to become a structure
-	layout = [[None for x in range(5)] for y in range(5)] 
+	structureRows = 5
+	structureCols = 5
+	#Indexing is: layout[row][column]
+	layout = [[None for x in range(structureCols)] for y in range(structureRows)] 
 	
 
 	layout[0][3] = Room("Hallway", """
@@ -297,29 +300,6 @@ def interact(structure, inventory):
 			for i in itemsAdded:
 				print "  "+i
 			print ""
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

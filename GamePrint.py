@@ -9,7 +9,7 @@
 """
 
 
-lineWidth = 70 #Designer Parameter to set up terminal width
+lineWidth = 60 #Designer Parameter to set up terminal width
 
 def clearScreen():
 	import os
@@ -144,7 +144,7 @@ def printStart(title, text):
 	clearScreen()
 	print title
 
-	print "-" * 70
+	print "-" * lineWidth
 	print ""
 	formattedPrint(lineWidth - 20, text)
 	print ""
