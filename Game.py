@@ -190,6 +190,7 @@ class Structure(object):
 		self.curRoom().visited = True #Mark room being left as visited
 		if (self.__isValidRoom(attRow, attCol)):
 				self.setLocation(attRow, attCol)
+				self.curRoom().visited = True #THIS MAKES THE MINIMAP WORK
 				return self.layout[self.r][self.c] #unused
 		else:
 			return None

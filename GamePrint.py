@@ -68,6 +68,8 @@ def printGame(structure, inventory):
 	clearScreen()
 	from Game import Inventory, Character, Room, Structure
 
+	printMinimap(structure)
+
 	room = structure.curRoom()
 	character = room.character
 
@@ -109,6 +111,25 @@ def printGame(structure, inventory):
 		for l in invLines:
 			print l
 	print "-" * lineWidth
+
+	
+
+def printMinimap(structure):
+	print "=" * lineWidth + '\n'
+	w = 3 #Room print width. Ex: "[ ]"
+	for row in range(len(structure.layout)):
+		line = ""
+		for col in range(len(structure.layout[row])):
+			room = structure.layout[row][col]
+			if (room == None):
+				line += " " * w
+			elif (room.visited):
+				line += "[%s]" % ("@" if room == structure.curRoom() else " ")
+			else:
+				line += " " * w
+		print line.center(lineWidth)
+
+	print "=" * lineWidth + '\n'
 
 def printWin(text):
 	print "" 

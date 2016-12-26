@@ -62,6 +62,7 @@ def gameInit():
 
 	###-------------------- Designer Code Ends Here --------------------###
 
+	structure.curRoom().visited = True
 	return [structure, inventory]
 
 
