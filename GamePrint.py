@@ -73,24 +73,30 @@ def printGame(structure, inventory):
 
 
 	print "=" * lineWidth
-	printMinimap(structure)
-	print "-" * lineWidth + '\n'
 
-	descLines = splitLines(lineWidth - 15, room.desc)
-	[up, left, down, right] = structure.availableMoves()
-	if (room.visited):
-		print " ----------- " + ("[%s]" % room.name).center(lineWidth - 13)
+	if (structure.mapEnable):
+		printMinimap(structure)
+		descLines = splitLines(lineWidth - 4, room.desc)
+		print ("[%s]" % room.name).center(lineWidth)
+		for l in descLines:
+			if(l):
+				print "  " + l
+		print "\n"
 	else:
-		print " ----------- " + ("{{%s}}" % room.name).center(lineWidth - 13)
-	print "|    |%s|    |  " %up + descLines[0]
-	print "| |%s|   |%s| |  " %(left, right) + descLines[1]
-	print "|    |%s|    |  " %down + descLines[2]
-	print " -----------   " + descLines[3]
-	for l in descLines[4:]:
-		if(l):
-			print " "*15 + l
-	print ""
-
+		descLines = splitLines(lineWidth - 15, room.desc)
+		[up, left, down, right] = structure.availableMoves()
+		if (room.visited):
+			print " ----------- " + ("[%s]" % room.name).center(lineWidth - 13)
+		else:
+			print " ----------- " + ("{{%s}}" % room.name).center(lineWidth - 13)
+		print "|    %s    |  " %up + descLines[0]
+		print "| %s @ %s |  " %(left, right) + descLines[1]
+		print "|    %s    |  " %down + descLines[2]
+		print " -----------   " + descLines[3]
+		for l in descLines[4:]:
+			if(l):
+				print " "*15 + l
+		print ""
 
 	invLines = inventory.printLines()
 	if(character != None):
@@ -113,36 +119,21 @@ def printGame(structure, inventory):
 	print "=" * lineWidth
 
 
-
-
 def printMinimap(structure):
 	layout = structure.layout
 	minimap = [["   " for x in range(structure.colCount)] for y in range(structure.rowCount)]
 	r = structure.r
 	c = structure.c
 
-	#TEMPORARY REMASKING, availableMoves will be changed next commit
 	[up, left, down, right] = structure.availableMoves()
-	if up == 'W':
-		minimap[r-1][c] = ' ^ '
-	elif up == 'X':
-		minimap[r-1][c] = ' X '
-
-	if left == 'A':
-		minimap[r][c-1] = ' < '
-	elif left == 'X':
-		minimap[r][c-1] = ' X '
-
-	if down == 'S':
-		minimap[r+1][c] = ' v '
-	elif down == 'X':
-		minimap[r+1][c] = ' X '
-
-	if right == 'D':
-		minimap[r][c+1] = ' > '
-	elif right == 'X':
-		minimap[r][c+1] = ' X '
-
+	if up != '   ':
+		minimap[r-1][c] = up
+	if left != '   ':
+	 	minimap[r][c-1] = left
+ 	if down != '   ':
+ 		minimap[r+1][c] = down
+	if right != '   ':
+		minimap[r][c+1] = right
 
 	for row in range(len(layout)):
 	 	for col in range(len(layout[row])):
@@ -156,6 +147,7 @@ def printMinimap(structure):
 	 	for col in range(len(minimap[row])):
 	 		line += minimap[row][col]
  		print line.center(lineWidth)
+	print "-" * lineWidth
 
 
 def printWin(text):

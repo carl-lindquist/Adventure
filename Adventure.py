@@ -81,6 +81,7 @@ def gameInit():
 	inventory = Inventory("Pockets", 5)
 	structure = Structure("The House", "3516", layout)
 	structure.setLocation(2, 2)
+	#structure.mapEnable = False
 
 	startSplash = """
         _____ 

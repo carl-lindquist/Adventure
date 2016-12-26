@@ -110,6 +110,7 @@ class Structure(object):
 		self.name = name
 		self.desc = description
 		self.layout = layout
+		self.mapEnable = True
 		self.r = 0
 		self.c = 0
 
@@ -127,23 +128,23 @@ class Structure(object):
 	def availableMoves(self):
 		r = self.r
 		c = self.c
-		up, left, down, right = ' ', ' ', ' ', ' '
+		up, left, down, right = '   ', '   ', '   ', '   '
 		if (self.__isValidRoom(r-1, c)):
-			up = "W"
+			up = " ^ "
 		elif(self.__isLockedRoom(r-1, c)):
-			up = "X"
+			up = " X "
 		if (self.__isValidRoom(r, c-1)):
-			left = "A"
+			left = " < "
 		elif(self.__isLockedRoom(r, c-1)):
-			left = "X"
+			left = "  X"
 		if (self.__isValidRoom(r+1, c)):
-			down = "S"
+			down = " v "
 		elif(self.__isLockedRoom(r+1, c)):
-			down = "X"
+			down = " X "
 		if (self.__isValidRoom(r, c+1)):
-			right = "D"
+			right = " > "
 		elif(self.__isLockedRoom(r, c+1)):
-			right = "X"
+			right = "X  "
 		return [up, left, down, right]
 
 
@@ -190,7 +191,8 @@ class Structure(object):
 		self.curRoom().visited = True #Mark room being left as visited
 		if (self.__isValidRoom(attRow, attCol)):
 				self.setLocation(attRow, attCol)
-				self.curRoom().visited = True #THIS MAKES THE MINIMAP WORK
+				if self.mapEnable:
+					self.curRoom().visited = True #Makes minimap intuitive
 				return self.layout[self.r][self.c] #unused
 		else:
 			return None
