@@ -243,7 +243,7 @@ def interact(structure, inventory):
 	character = room.character
 	usageString = ""
 	itemsAdded = []
-	lineWidth = 65
+	lineWidth = GamePrint.lineWidth
 	print ""
 
 	###-------------------- Designer Code Here --------------------###

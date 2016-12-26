@@ -68,13 +68,13 @@ def printGame(structure, inventory):
 	clearScreen()
 	from Game import Inventory, Character, Room, Structure
 
-	printMinimap(structure)
-
 	room = structure.curRoom()
 	character = room.character
 
 
-	print "-" * lineWidth
+	print "=" * lineWidth
+	printMinimap(structure)
+	print "-" * lineWidth + '\n'
 
 	descLines = splitLines(lineWidth - 15, room.desc)
 	[up, left, down, right] = structure.availableMoves()
@@ -110,26 +110,53 @@ def printGame(structure, inventory):
 	else:
 		for l in invLines:
 			print l
-	print "-" * lineWidth
+	print "=" * lineWidth
 
-	
+
+
 
 def printMinimap(structure):
-	print "=" * lineWidth + '\n'
-	w = 3 #Room print width. Ex: "[ ]"
-	for row in range(len(structure.layout)):
-		line = ""
-		for col in range(len(structure.layout[row])):
-			room = structure.layout[row][col]
-			if (room == None):
-				line += " " * w
-			elif (room.visited):
-				line += "[%s]" % ("@" if room == structure.curRoom() else " ")
-			else:
-				line += " " * w
-		print line.center(lineWidth)
+	layout = structure.layout
+	minimap = [["   " for x in range(structure.colCount)] for y in range(structure.rowCount)]
+	r = structure.r
+	c = structure.c
 
-	print "=" * lineWidth + '\n'
+	#TEMPORARY REMASKING, availableMoves will be changed next commit
+	[up, left, down, right] = structure.availableMoves()
+	if up == 'W':
+		minimap[r-1][c] = ' ^ '
+	elif up == 'X':
+		minimap[r-1][c] = ' X '
+
+	if left == 'A':
+		minimap[r][c-1] = ' < '
+	elif left == 'X':
+		minimap[r][c-1] = ' X '
+
+	if down == 'S':
+		minimap[r+1][c] = ' v '
+	elif down == 'X':
+		minimap[r+1][c] = ' X '
+
+	if right == 'D':
+		minimap[r][c+1] = ' > '
+	elif right == 'X':
+		minimap[r][c+1] = ' X '
+
+
+	for row in range(len(layout)):
+	 	for col in range(len(layout[row])):
+	 		if layout[row][col] != None and layout[row][col].visited:
+	 			minimap[row][col] = "[ ]"
+
+	minimap[r][c] = "[@]"
+
+	for row in range(len(minimap)):
+	 	line = ""
+	 	for col in range(len(minimap[row])):
+	 		line += minimap[row][col]
+ 		print line.center(lineWidth)
+
 
 def printWin(text):
 	print "" 
