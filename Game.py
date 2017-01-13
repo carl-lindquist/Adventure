@@ -14,7 +14,7 @@
 
 import GamePrint, Adventure
 
-##------------------------------ Funcitons ------------------------------##
+##------------------------------ Functions ------------------------------##
 
 def gameWin(text):
 	GamePrint.printWin(text)
@@ -201,36 +201,40 @@ class Structure(object):
 
 ##------------------------------ Game Code ------------------------------##
 
-#Game Initialization
-[structure, inventory] = Adventure.gameInit()
-raw_input("Press 'Enter' to begin: ")
-GamePrint.printGame(structure, inventory)
-cRoom = structure.curRoom()
+def main():
+	#Game Initialization
+	[structure, inventory] = Adventure.gameInit()
+	raw_input("Press 'Enter' to begin: ")
+	GamePrint.printGame(structure, inventory)
+	cRoom = structure.curRoom()
 
 
-#Adventure Begins!
-while True:
-	userInput = raw_input()
-	if (userInput in ['w', 'a', 's', 'd', ""]):
-		structure.attemptMove(userInput)
-		cRoom = structure.curRoom()
-		if (cRoom.items != []):
-			itemsAdded = inventory.addItems(cRoom)
-			GamePrint.printGame(structure, inventory)
-			print "You obtain: "
-			for i in itemsAdded:
-				print "  "+i
-		else:
-			GamePrint.printGame(structure, inventory)
-	elif (userInput == 'info' ):
-		print "Currently in \"%s\"." % structure.name
-		print structure.desc
-	elif (userInput[:3] == 'use' or userInput[:3] == 'Use' and userInput[4:]):
-		if (userInput[4:] in inventory.items):
-			Adventure.tryItem(structure, inventory, userInput[4:])
-		else:
-			print "No %s in inventory" % userInput[4:]
-	elif (userInput == 'i' and cRoom.character != None):
-		Adventure.interact(structure, inventory)
+	#Adventure Begins!
+	while True:
+		userInput = raw_input()
+		if (userInput in ['w', 'a', 's', 'd', ""]):
+			structure.attemptMove(userInput)
+			cRoom = structure.curRoom()
+			if (cRoom.items != []):
+				itemsAdded = inventory.addItems(cRoom)
+				GamePrint.printGame(structure, inventory)
+				print "You obtain: "
+				for i in itemsAdded:
+					print "  "+i
+			else:
+				GamePrint.printGame(structure, inventory)
+		elif (userInput == 'info' ):
+			print "Currently in \"%s\"." % structure.name
+			print structure.desc
+		elif (userInput[:3] == 'use' or userInput[:3] == 'Use' and userInput[4:]):
+			if (userInput[4:] in inventory.items):
+				Adventure.tryItem(structure, inventory, userInput[4:])
+			else:
+				print "No %s in inventory" % userInput[4:]
+		elif (userInput == 'i' and cRoom.character != None):
+			Adventure.interact(structure, inventory)
+
+if __name__ == "__main__":
+	main()
 
 # EOF

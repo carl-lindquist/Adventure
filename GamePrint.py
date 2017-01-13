@@ -138,7 +138,8 @@ def printMinimap(structure):
 	for row in range(len(layout)):
 	 	for col in range(len(layout[row])):
 	 		if layout[row][col] != None and layout[row][col].visited:
-	 			minimap[row][col] = "[ ]"
+	 			minimap[row][col] = "[ ]" if layout[row][col].locked == False else " X "
+
 
 	minimap[r][c] = "[@]"
 

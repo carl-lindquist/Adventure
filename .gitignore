@@ -1,6 +1,10 @@
 
-#personal faffing about file
+#personal faffing about files
 GameTest.py
+printc.py
+
+#because they cause merge conflicts
+*.txt
 
 # Python Import Files
 
