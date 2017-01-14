@@ -62,13 +62,15 @@ def formattedPrint(length, text):
 			if l:
 				print " " + l
 
-def printStructure(structure, row, col):
+def printStructure(structure):
 	clearScreen()
 	print "=" * termWidth
+	row = structure.r
+	col = structure.c
+	printMap(structure)
+	print "-" * termWidth
 
-	printMap(structure, row, col)
 	if structure.layout[row][col] != None:
-		print "-" * termWidth
 		room = structure.layout[row][col]
 		print ("[%s]" % room.name).center(termWidth)
 		descLines = splitLines(termWidth - 4, room.desc)
@@ -89,13 +91,15 @@ def printStructure(structure, row, col):
 				if(l):
 					print "  " + l
 	else:
-		print ("No room").center(termWidth)
+		print ("-- EMPTY --").center(termWidth)
 	print "\n"
 	print "=" * termWidth
 
-def printMap(structure, row, col):
+def printMap(structure):
 	layout = structure.layout
 	minimap = [["   " for x in range(structure.colCount)] for y in range(structure.rowCount)]
+	row = structure.r
+	col = structure.c
 	r = row
 	c = col
 
@@ -120,6 +124,37 @@ def printMap(structure, row, col):
  		print line.center(termWidth)
 
 ##------------------------------ Control Functions ------------------------------##
+
+def forceMove(structure, input):
+	r = structure.r
+	c = structure.c
+	if input == 'w':
+		r -= 1
+		if r < 0:
+			structure.layout.insert(0, [None for x in range(structure.colCount)])
+			r = 0
+			structure.rowCount += 1
+	elif input == 'a':
+		c -= 1
+		if c < 0:
+			for row in range(structure.rowCount):
+				structure.layout[row].insert(0, None)
+				c = 0
+			structure.colCount += 1
+	elif input == 's':
+		r += 1
+		if r >= structure.rowCount:
+			structure.layout.append([None for x in range(structure.colCount)])
+			structure.rowCount += 1
+	elif input == 'd':
+		c += 1
+		if c >= structure.colCount:
+			for row in range(structure.rowCount):
+				structure.layout[row].append(None)
+			structure.colCount += 1	
+	structure.r = r
+	structure.c = c
+
 
 def chunkType(string):
 	if len(string) == 0 or string[0] != '[' or string[len(string) - 1] != ']':
@@ -178,7 +213,6 @@ def makeCharacterChunk(character):
 	lines.append('[end character]')
 	return lines
 
-
 def writeChunk(chunk, file):
 	for lines in chunk:
 		file.write(lines + '\n')
@@ -235,6 +269,8 @@ def main():
 				End of the hall. There's a door to your left, but it's locked from
 				the inside. A light shuffle comes from within.
 				""", [], None)
+			layout[0][0] = Room("Corner", 'This WAS zero|zero', [], None, 'lock')
+			layout[4][4] = Room("Corner", 'This WAS four|four', [], None, 'lock')
 			layout[1][3] = Room("Hallway", "", [], None)
 			layout[2][3] = Room("Hallway", "", [], None)
 			layout[3][3] = Room("Hallway", "", [], None)
@@ -257,13 +293,17 @@ def main():
 				A small kitchen with blue tile countertops.
 				""", ["Matches", "Knife"], None)
 			structure = Structure("The House", "3516", layout)
+			structure.r = 3
+			structure.c = 2
 
 
 			while(True):
-				printStructure(structure, 1, 4)
+				printStructure(structure)
 				ui = raw_input()
 				if ui == 'quit':
 					break
+				elif ui in ['w', 'a', 's', 'd']:
+					forceMove(structure, ui)
 				
 		else:
 			sys.exit()
@@ -282,4 +322,3 @@ def main():
 
 if __name__ == "__main__":
 	main()
-	
