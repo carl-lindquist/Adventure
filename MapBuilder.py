@@ -11,6 +11,15 @@ import printc
 from Game import Structure, Room, Character
 termWidth = 70
 
+UP = 'w'
+LEFT = 'a'
+DOWN = 's'
+RIGHT = 'd'
+
+EXIT = 'exit'
+NEW_ROOM = 'r'
+
+
 ##------------------------------ Classes ------------------------------##
 
 
@@ -123,30 +132,79 @@ def printMap(structure):
 	 		line += minimap[row][col]
  		print line.center(termWidth)
 
+def printNavigation(structure):
+	printStructure(structure)
+	print 'Navigation Controls:'.center(termWidth)
+	print """ 'wasd' to move --- 'r' enter Room Editor""".center(termWidth)
+	print """ 'exit' leave MapBuilder""".center(termWidth)
+	print '+' * termWidth
+
+def printRoomEditor(structure):
+	printStructure(structure)
+	print 'Room Editor Controls:'.center(termWidth)
+	print """'[n]' name --- '[d]' description""".center(termWidth)
+	print """'[i]' item editor --- '[c]' charater editor --- '[l]' lock/unlock""".center(termWidth)
+	print """'[delete]' remove room --- '[exit]' exit to navigation""".center(termWidth)
+	print '+' * termWidth
+
+def printItemEditor(structure):
+	printStructure(structure)
+	print 'Item Editor Controls:'.center(termWidth)
+	print """'[add] Item' add item --- '[del] Item' delete item""".center(termWidth)
+	print """'[exit]' exit to Room Editor""".center(termWidth)
+	print '+' * termWidth
+
+def printCharacterEditor(structure):
+	printStructure(structure)
+	print 'Character Editor Controls:'.center(termWidth)
+	print """'[name] Name' change name --- '[d] dialogue' change static dialogue""".center(termWidth)
+	print """'[delete]' remove character --- '[exit]' exit to Room Editor""".center(termWidth)
+	print '+' * termWidth
+
+
 ##------------------------------ Control Functions ------------------------------##
 
 def forceMove(structure, input):
 	r = structure.r
 	c = structure.c
-	if input == 'w':
+	if input == UP:
+		if all(r==structure.rowCount-1 and structure.layout[r][col] == None for col in range(structure.colCount)):
+			structure.layout.pop() #remove empty row when leaving
+			structure.rowCount -= 1
 		r -= 1
-		if r < 0:
+		if r < 0: #entering an empty row
 			structure.layout.insert(0, [None for x in range(structure.colCount)])
 			r = 0
 			structure.rowCount += 1
-	elif input == 'a':
+
+	elif input == LEFT:
+		if all(c==structure.colCount-1 and structure.layout[row][c] == None for row in range(structure.rowCount)):
+			for row in range(structure.rowCount):
+				structure.layout[row].pop()
+			structure.colCount -= 1
 		c -= 1
 		if c < 0:
 			for row in range(structure.rowCount):
 				structure.layout[row].insert(0, None)
 				c = 0
 			structure.colCount += 1
-	elif input == 's':
+
+	elif input == DOWN:
+		if all(r==0 and structure.layout[r][col] == None for col in range(structure.colCount)):
+			structure.layout.pop(0) #remove empty row when leaving
+			structure.rowCount -= 1
+			r = -1
 		r += 1
 		if r >= structure.rowCount:
 			structure.layout.append([None for x in range(structure.colCount)])
 			structure.rowCount += 1
-	elif input == 'd':
+
+	elif input == RIGHT:
+		if all(c==0 and structure.layout[row][c] == None for row in range(structure.rowCount)):
+			for row in range(structure.rowCount):
+				structure.layout[row].pop(0)
+			structure.colCount -= 1
+			c = -1
 		c += 1
 		if c >= structure.colCount:
 			for row in range(structure.rowCount):
@@ -155,6 +213,63 @@ def forceMove(structure, input):
 	structure.r = r
 	structure.c = c
 
+def roomEditor(structure):
+	room = structure.layout[structure.r][structure.c]
+	ui = 'arb' #arbitrary init value
+	while ui not in ['[exit]', '[exit']:
+		if ui in ['[n]', '[d]', '[i]', '[c]', '[l]', 'arb'] and room == None:
+			room = Room(' -- No Room Name -- ', ' -- No Description --', [], None)
+			structure.layout[structure.r][structure.c] = room
+		if ui == '[n]':
+			room.name = raw_input("Enter a name: ")
+		elif ui == '[d]':
+			room.desc = raw_input("Enter a description, or add one in AdventureMap.txt: \n")
+		elif ui == '[i]':
+			itemEditor(structure)
+		elif ui == '[c]':
+			characterEditor(structure)
+		elif ui == '[l]':
+			room.locked = not room.locked
+		elif ui == '[delete]':
+			room = None
+
+		structure.layout[structure.r][structure.c] = room
+		printRoomEditor(structure)
+		ui = raw_input()
+
+def itemEditor(structure):
+	printItemEditor(structure)
+	ui = raw_input()
+	items = structure.layout[structure.r][structure.c].items
+	while ui != '[exit]':
+		if ui[0:5] == '[add]':
+			items.append(ui[6:])
+		if ui[0:5] == '[del]':
+			items.remove(ui[6:])
+
+		structure.layout[structure.r][structure.c].items = items
+		printItemEditor(structure)
+		ui = raw_input()
+
+def characterEditor(structure):
+	c = structure.layout[structure.r][structure.c].character
+	ui = 'arb' #arbitrary init value
+	while ui not in ['[exit]', '[exit']:
+		if c == None:
+			c = Character(' -- No Character Name -- ', ' -- No Dialogue --')
+			structure.layout[structure.r][structure.c].character = c
+		if ui[0:6] == '[name]':
+			c.name = ui[7:]
+		elif ui[0:3] == '[d]':
+			c.dialogue = ui[4:]
+		elif ui == '[delete]':
+			c = None
+			structure.layout[structure.r][structure.c].character = c
+			break
+
+		structure.layout[structure.r][structure.c].character = c
+		printCharacterEditor(structure)
+		ui = raw_input()
 
 def chunkType(string):
 	if len(string) == 0 or string[0] != '[' or string[len(string) - 1] != ']':
@@ -226,6 +341,8 @@ dfltDescChunk = ["[desciription]", " -- insert description here --", "[end descr
 
 dfltStrDesc = ' -- Enter a description using your text editor --'
 
+DFLT_ROOM = Room(' -- No Name -- ', ' -- No Description --', [], None) 
+
 
 
 ##------------------------------ Main Code ------------------------------##
@@ -296,14 +413,16 @@ def main():
 			structure.r = 3
 			structure.c = 2
 
-
 			while(True):
-				printStructure(structure)
+				printNavigation(structure)
+
 				ui = raw_input()
-				if ui == 'quit':
+				if ui == EXIT:
 					break
-				elif ui in ['w', 'a', 's', 'd']:
+				elif ui in [UP, LEFT, DOWN, RIGHT]:
 					forceMove(structure, ui)
+				elif ui == NEW_ROOM:
+					roomEditor(structure)
 				
 		else:
 			sys.exit()
