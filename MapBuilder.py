@@ -372,7 +372,7 @@ def makeRoomChunk(room, row, col):
 	lines = ['']
 	lines.append(INDENT+'[room]')
 	lines.append((INDENT*2)+'[name] ' + room.name)
-	lines.append((INDENT*2)+'[loc] %d %d' % (row, col))
+	lines.append((INDENT*2)+'[location] %d %d' % (row, col))
 	lines.append((INDENT*2)+'[desc]')
 	for l in splitLines(descWidth, room.desc):
 		lines.append((INDENT*3)+l)
@@ -498,11 +498,11 @@ def main():
 	print "\n\tPress 'enter' to begin editing:"
 	raw_input()
 
-	with open('AdventureMap.txt', 'r+') as f:
+	with open('AdventureMap.txt', 'r') as f:
 		lines = f.readlines()
 	lines = [x.strip() for x in lines] 
 
-	if chunkType(lines[0]) != 'description':
+	if lines == [] or chunkType(lines[0]) != 'description':
 		descChunk = ['-- insert description here --']
 	else:
 		descChunk = getChunk(lines[0:])
@@ -526,9 +526,10 @@ def main():
 			roomEditor(structure)
 
 
-	outfile = open("MAPP.txt", "w+")
+	outfile = open("AdventureMap.txt", "w+")
 	writeChunk(makeDescChunk(descChunk), outfile)
 	writeChunk(makeStructureChunk(structure), outfile)
+	outfile.close()
 	
 
 
