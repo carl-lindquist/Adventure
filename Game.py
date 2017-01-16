@@ -25,6 +25,7 @@ def gameLose(text):
 	GamePrint.printLose(text)
 	import sys
 	sys.exit()
+	
 
 ##------------------------------ Classes ------------------------------##
 
@@ -204,13 +205,13 @@ class Structure(object):
 def main():
 	#Game Initialization
 	[structure, inventory] = Adventure.gameInit()
-	raw_input("Press 'Enter' to begin: ")
+	userInput = raw_input("Press 'Enter' to begin: ")
 	GamePrint.printGame(structure, inventory)
 	cRoom = structure.curRoom()
 
 
 	#Adventure Begins!
-	while True:
+	while userInput not in ['exit', 'quit']:
 		userInput = raw_input()
 		if (userInput in ['w', 'a', 's', 'd', ""]):
 			structure.attemptMove(userInput)

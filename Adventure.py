@@ -40,46 +40,10 @@ def gameInit():
 
 	###-------------------- Designer Code Here --------------------###
 
-	#Array to become a structure
-	structureRows = 5
-	structureCols = 5
-	#Indexing is: layout[row][column]
-	layout = [[None for x in range(structureCols)] for y in range(structureRows)] 
-	
-
-	layout[0][3] = Room("Hallway", """
-		End of the hall. There's a door to your left, but it's locked from
-		the inside. A light shuffle comes from within.
-		""", [], None)
-	layout[1][3] = Room("Hallway", "", [], None)
-	layout[2][3] = Room("Hallway", "", [], None)
-	layout[3][3] = Room("Hallway", "", [], None)
-
-	layout[2][2] = Room("Bedroom", """
-		Two beds, side by side. Light shines in through two windows
-		in front of you.
-		""", [], Character("Sam", "Hey brother!"))
-
-	#Note: This room has an extra optional arg specified to "lock" the room
-	layout[0][2] = Room("Master Bedroom", """
-		A big bed sits in the middle of this well decorated room. Dressers
-		and boxes abound. Ginger is curled up next to the bed.
-		Your mom is snoozing peacefully after a horrendously challenging row. 
-		""", ["Blue Mug"], Character("Mom", "(Sleepily) Make me a cup of tea?"), 'lock')
-
-	layout[4][3] = Room("Living Room", """
-		A grand old room with a fireplace. Large
-		wooden beams cross over your head. A piano blocks a large 
-		window. The fireplace looks workable. A dog stands
-		guard by the door.
-		""", ["Ripstick"], Character("Ginger", "Woof"))
-
-	layout[1][4] = Room("Kitchen", """
-		A small kitchen with blue tile countertops.
-		""", ["Matches", "Knife"], None)
-
 	inventory = Inventory("Pockets", 5)
-	structure = Structure("The House", "3516", layout)
+	# structure = Structure("The House", "3516", layout)
+	from MapBuilder import loadStructure
+	structure = loadStructure()
 	structure.setLocation(2, 2)
 	#structure.mapEnable = False
 
@@ -99,7 +63,12 @@ def gameInit():
     	out of this misery is to locate your mother's car keys. Of course
     	this is easier said than done. Good luck!
     	"""
-	GamePrint.printStart(startSplash, startText)
+	controls = ["""        'wasd'   move in desired direction""",
+	            """  'use <item>'   use an item in your inventory""",
+	            """           'i'   interact with a character""",
+	            """        'info'   print the name of the current structure"""
+	            ]
+	GamePrint.printStart(startSplash, startText, controls)
 
 	###-------------------- Designer Code Ends Here --------------------###
 

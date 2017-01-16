@@ -7,9 +7,10 @@
 	An interactive shell program to create an AdventureMap
 """
 
-import printc
+import GamePrint
 from Game import Structure, Room, Character
-termWidth = 70
+termWidth = GamePrint.lineWidth
+descWidth = termWidth - 25
 
 UP = 'w'
 LEFT = 'a'
@@ -19,11 +20,26 @@ RIGHT = 'd'
 EXIT = 'exit'
 NEW_ROOM = 'r'
 
+INDENT = '  '
 
-##------------------------------ Classes ------------------------------##
+startSplash = """
+  __  __             ____        _ _     _             
+ |  \/  | __ _ _ __ | __ ) _   _(_) | __| | ___ _ __  
+ | |\/| |/ _` | '_ \|  _ \| | | | | |/ _` |/ _ \ '__| 
+ | |  | | (_| | |_) | |_) | |_| | | | (_| |  __/ |    
+ |_|  |_|\__,_| .__/|____/ \__,_|_|_|\__,_|\___|_|    
+              |_|                                      
+    """
+startText = """
+	Welcome the the Map Builder for Adventure! Are you sick
+	and tired of building maps with nasty 'arrays' and thinking about
+	indices in your head? Well no more!
+	"""
 
-
-
+controls = ["""'wasd'   move in desired direction""",
+	        """   'r'   create/edit room""",
+	        """'exit'   exit mapbuilder"""
+]
 
 
 ##------------------------------ Print Functions ------------------------------##
@@ -71,6 +87,14 @@ def formattedPrint(length, text):
 			if l:
 				print " " + l
 
+
+"""
+[desc]	Prints a depiction of an Adventure map. Showing
+		rooms, their locked/unlocked status, and the current
+		room's characters/items
+
+[structure] Structure to be printed
+"""
 def printStructure(structure):
 	clearScreen()
 	print "=" * termWidth
@@ -104,6 +128,12 @@ def printStructure(structure):
 	print "\n"
 	print "=" * termWidth
 
+"""
+[desc]	Prints just the map for a given structure. Shows rooms
+		regardless of visitation.
+
+[structure] Structure to be printed
+"""
 def printMap(structure):
 	layout = structure.layout
 	minimap = [["   " for x in range(structure.colCount)] for y in range(structure.rowCount)]
@@ -132,6 +162,12 @@ def printMap(structure):
 	 		line += minimap[row][col]
  		print line.center(termWidth)
 
+"""
+[desc]	Calls printStructure(). Then prints controls
+		for navigating the MapBuilder
+
+[structure] Structure to be printed
+"""
 def printNavigation(structure):
 	printStructure(structure)
 	print 'Navigation Controls:'.center(termWidth)
@@ -139,6 +175,12 @@ def printNavigation(structure):
 	print """ 'exit' leave MapBuilder""".center(termWidth)
 	print '+' * termWidth
 
+"""
+[desc]	Calls printStructure(). Then prints controls
+		for editing the current room.
+
+[structure] Structure to be printed
+"""
 def printRoomEditor(structure):
 	printStructure(structure)
 	print 'Room Editor Controls:'.center(termWidth)
@@ -147,6 +189,12 @@ def printRoomEditor(structure):
 	print """'[delete]' remove room --- '[exit]' exit to navigation""".center(termWidth)
 	print '+' * termWidth
 
+"""
+[desc]	Calls printStructure(). Then prints controls
+		for editing the current items in a room.
+
+[structure] Structure to be printed
+"""
 def printItemEditor(structure):
 	printStructure(structure)
 	print 'Item Editor Controls:'.center(termWidth)
@@ -154,6 +202,12 @@ def printItemEditor(structure):
 	print """'[exit]' exit to Room Editor""".center(termWidth)
 	print '+' * termWidth
 
+"""
+[desc]	Calls printStructure(). Then prints controls
+		for editing the current character in a room.
+
+[structure] Structure to be printed
+"""
 def printCharacterEditor(structure):
 	printStructure(structure)
 	print 'Character Editor Controls:'.center(termWidth)
@@ -271,6 +325,8 @@ def characterEditor(structure):
 		printCharacterEditor(structure)
 		ui = raw_input()
 
+
+
 def chunkType(string):
 	if len(string) == 0 or string[0] != '[' or string[len(string) - 1] != ']':
 		return 'ERROR'
@@ -285,17 +341,25 @@ def getChunk(lines):
 		tmp += 1
 	return lines[1:tmp]
 
+def makeDescChunk(descChunk):
+	desc = ['[description]']
+	for l in descChunk:
+		desc.append(INDENT +' '+l)
+	desc.append('[end description]')
+	return desc
+
 def makeStructureChunk(structure):
 	name = structure.name
 	desc = structure.desc
 	layout = structure.layout
 
-	lines = ['[structure]']
-	lines.append('[name] ' + name)
-	lines.append('[desc]')
-	for l in splitLines(termWidth, desc):
-		lines.append(l)
-	lines.append('[end desc]')
+	lines = ['']
+	lines.append('[structure]')
+	lines.append(INDENT + '[name] ' + name)
+	lines.append(INDENT + '[desc]')
+	for l in splitLines(descWidth, desc):
+		lines.append((INDENT*2) + l)
+	lines.append(INDENT + '[end desc]')
 	for row in range(len(layout)):
 		for col in range(len(layout[row])):
 			if layout[row][col] != None:
@@ -305,139 +369,174 @@ def makeStructureChunk(structure):
 	return lines
 
 def makeRoomChunk(room, row, col):
-	lines = ['[room]', '[loc] %d|%d' % (row, col) ,'[name] ' + room.name]
-	lines.append('[desc]')
-	for l in splitLines(termWidth, room.desc):
-		lines.append(l)
-	lines.append('[end desc]')
+	lines = ['']
+	lines.append(INDENT+'[room]')
+	lines.append((INDENT*2)+'[name] ' + room.name)
+	lines.append((INDENT*2)+'[loc] %d %d' % (row, col))
+	lines.append((INDENT*2)+'[desc]')
+	for l in splitLines(descWidth, room.desc):
+		lines.append((INDENT*3)+l)
+	lines.append((INDENT*2)+'[end desc]')
 	if room.items != []:
-		lines.append('[items]')
+		lines.append((INDENT*2)+'[items]')
 		for i in room.items:
-			lines.append(i)
-		lines.append('[end items]')
+			lines.append((INDENT*3)+i)
+		lines.append((INDENT*2)+'[end items]')
 	if room.character != None:
 		for l in makeCharacterChunk(room.character):
 					lines.append(l)
-	lines.append('[end room]')
+	if room.locked:
+		lines.append((INDENT*2)+'[lock]')
+	lines.append(INDENT+'[end room]')
 	return lines
 
 def makeCharacterChunk(character):
-	lines = ['[character]', '[name] '+ character.name]
-	for l in splitLines(termWidth, character.dialogue):
-		lines.append(l)
-	lines.append('[end character]')
+	lines = [(INDENT*2)+'[character]']
+	lines.append((INDENT*3)+'[name] '+ character.name)
+	for l in splitLines(descWidth, character.dialogue):
+		lines.append((INDENT*4)+l)
+	lines.append((INDENT*2)+'[end character]')
 	return lines
 
 def writeChunk(chunk, file):
 	for lines in chunk:
 		file.write(lines + '\n')
 
+def chunkType(string):
+	if len(string) == 0 or string[0] != '[' or string[len(string) - 1] != ']':
+		return 'ERROR'
+	return string[1:len(string) - 1]
 
-##------------------------------ Defaults ------------------------------##
+def getChunk(lines):
+	if lines[0][0] != '[':
+		printc.red('ERROR -- Improper chunk passed.')
+	ctype = chunkType(lines[0])
+	tmp = 0
+	while lines[tmp] != '[end ' + ctype + ']':
+		tmp += 1
+	return lines[1:tmp]
 
-dfltDescChunk = ["[desciription]", " -- insert description here --", "[end description]"]
-#dfltStrChunk = ["[structure]", " -- insert description here --", "[end description]"]
 
 
-dfltStrDesc = ' -- Enter a description using your text editor --'
+def loadStructure():
+	with open('AdventureMap.txt') as f:
+		mapFile = f.readlines()
+	mapFile = [x.strip() for x in mapFile] 
 
-DFLT_ROOM = Room(' -- No Name -- ', ' -- No Description --', [], None) 
+	count = 0
+	for l in mapFile:
+		if l == '[structure]':
+			break
+		count +=1
+	strChunk = getChunk(mapFile[count:]) #isolate structure chunk
 
+	layout = [[None for x in range(1)] for y in range(1)]
+	structure = Structure('-- No Structure Name --', '', layout)
+	structure.name = strChunk[0][7:]
+	for l in getChunk(strChunk[1:]):
+		structure.desc += " "+l
+	
+	count = 0
+	for l in strChunk:
+		if l == '[room]':
+			loadRoom(structure, getChunk(strChunk[count:]))
+		count += 1
+
+	return structure
+
+def loadRoom(structure, roomChunk):
+	room = Room('', '', [], None)
+	room.name = roomChunk[0][7:]
+	r = ''
+	c = ''
+	for chars in roomChunk[1][11:]:
+		r += chars
+		if chars == ' ':
+			break
+	for chars in roomChunk[1][len(r)+11 :]:
+		c += chars
+	r = int(r)
+	c = int(c)
+	for l in getChunk(roomChunk[2:]):
+		room.desc += " "+l
+	if '[lock]' in roomChunk:
+		room.locked = True
+	count = 0
+	for l in roomChunk:
+		if l == '[character]':
+			charChunk = getChunk(roomChunk[count:])
+			room.character = loadCharacter(charChunk)
+			break;
+		elif l == '[items]':
+			itemChunk = getChunk(roomChunk[count:])
+			room.items.extend(itemChunk)
+		count += 1
+	expandStructure(structure, r, c)
+	structure.layout[r][c] = room
+
+def loadCharacter(charChunk):
+	character = Character('', '')
+	character.name = charChunk[0][7:]
+	for l in charChunk[1:]:
+		character.dialogue += " "+l
+	return character
+
+def expandStructure(structure, row, col):
+	while structure.rowCount <= row:
+		structure.layout.append([None for x in range(structure.colCount)])
+		structure.rowCount += 1
+	while structure.colCount <= col:
+		for r in range(structure.rowCount):
+			structure.layout[r].append(None)
+		structure.colCount += 1
 
 
 ##------------------------------ Main Code ------------------------------##
 
 def main():
-	import sys
-	clearScreen()
-	print ""
-	formattedPrint (termWidth, """
-		Welcome the the Map Builder for Adventure! Are you sick
-		and tired of building maps with nasty 'arrays' and thinking about
-		indices in your head? Well no more!
-		""")
-
-	printc.blue("\nPress 'enter' to begin editing:")
+	GamePrint.printStart(startSplash, startText, controls)
+	print "\n\tPress 'enter' to begin editing:"
 	raw_input()
 
-	with open('AdventureMap.txt') as f:
+	with open('AdventureMap.txt', 'r+') as f:
 		lines = f.readlines()
-	lines = [x.strip('\n') for x in lines] 
+	lines = [x.strip() for x in lines] 
 
-
-	if chunkType(lines[0]) == 'ERROR':
-		printc.red(' -- Enter a description using your text editor --')
-		descChunk = dfltDescChunk
+	if chunkType(lines[0]) != 'description':
+		descChunk = ['-- insert description here --']
 	else:
 		descChunk = getChunk(lines[0:])
-
 	if '[structure]' not in lines:
-		printc.blue("No structure found, would you like to create one?")
-		ui = raw_input("\n\t 'y' or 'n': ")
-		if ui in ['yes', 'Yes', 'y', 'Y']:
-			# name = raw_input("\tEnter a name: ")
-			# layout = [[None for x in range(1)] for y in range(1)]
-			# structure = Structure(name, dfltStrDesc, layout)
+		print "No structure found, have fun building a map from scratch!"
+		name = raw_input("\tEnter a name for your structure: ")
+		layout = [[None for x in range(1)] for y in range(1)]
+		structure = Structure(name, '-- insert description here --', layout)	
+	else:
+		structure = loadStructure()
 
-			structureRows = 5
-			structureCols = 5
-			layout = [[None for x in range(structureCols)] for y in range(structureRows)] 
-			layout[0][3] = Room("Hallway", """
-				End of the hall. There's a door to your left, but it's locked from
-				the inside. A light shuffle comes from within.
-				""", [], None)
-			layout[0][0] = Room("Corner", 'This WAS zero|zero', [], None, 'lock')
-			layout[4][4] = Room("Corner", 'This WAS four|four', [], None, 'lock')
-			layout[1][3] = Room("Hallway", "", [], None)
-			layout[2][3] = Room("Hallway", "", [], None)
-			layout[3][3] = Room("Hallway", "", [], None)
-			layout[2][2] = Room("Bedroom", """
-				Two beds, side by side. Light shines in through two windows
-				in front of you.
-				""", [], Character("Sam", "Hey brother!"))
-			layout[0][2] = Room("Master Bedroom", """
-				A big bed sits in the middle of this well decorated room. Dressers
-				and boxes abound. Ginger is curled up next to the bed.
-				Your mom is snoozing peacefully after a horrendously challenging row. 
-				""", ["Blue Mug"], Character("Mom", "(Sleepily) Make me a cup of tea?"), 'lock')
-			layout[4][3] = Room("Living Room", """
-				A grand old room with a fireplace. Large
-				wooden beams cross over your head. A piano blocks a large 
-				window. The fireplace looks workable. A dog stands
-				guard by the door.
-				""", ["Ripstick"], Character("Ginger", "Woof"))
-			layout[1][4] = Room("Kitchen", """
-				A small kitchen with blue tile countertops.
-				""", ["Matches", "Knife"], None)
-			structure = Structure("The House", "3516", layout)
-			structure.r = 3
-			structure.c = 2
 
-			while(True):
-				printNavigation(structure)
+	while(True):
+		printNavigation(structure)
+		ui = raw_input()
+		if ui == EXIT:
+			break
+		elif ui in [UP, LEFT, DOWN, RIGHT]:
+			forceMove(structure, ui)
+		elif ui == NEW_ROOM:
+			roomEditor(structure)
 
-				ui = raw_input()
-				if ui == EXIT:
-					break
-				elif ui in [UP, LEFT, DOWN, RIGHT]:
-					forceMove(structure, ui)
-				elif ui == NEW_ROOM:
-					roomEditor(structure)
-				
-		else:
-			sys.exit()
 
 	outfile = open("MAPP.txt", "w+")
-
-	writeChunk(descChunk, outfile)
+	writeChunk(makeDescChunk(descChunk), outfile)
 	writeChunk(makeStructureChunk(structure), outfile)
 	
 
 
 
-
-
-
-
 if __name__ == "__main__":
 	main()
+
+
+
+
+

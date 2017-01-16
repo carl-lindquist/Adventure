@@ -9,7 +9,7 @@
 """
 
 
-lineWidth = 60 #Designer Parameter to set up terminal width
+lineWidth = 65 #Designer Parameter to set up terminal width
 
 def clearScreen():
 	import os
@@ -181,7 +181,7 @@ def printLose(text):
 	formattedPrint(lineWidth - 20, text)
 	print ""
 
-def printStart(title, text):
+def printStart(title, text, controls):
 	clearScreen()
 	print title
 
@@ -191,10 +191,8 @@ def printStart(title, text):
 	print ""
 
 	print "Controls:"
-	print "        'wasd'   move in desired direction"
-	print "  'use <item>'   use an item in your inventory"
-	print "           'i'   interact with a character"
-	print "        'info'   print the name of the current structure"
+	for l in controls:
+		print '   ' + l
 	
 	print ""
 	print ""
