@@ -4,7 +4,8 @@
 
 	Mapbuilder
 
-	An interactive shell program to create an AdventureMap
+	An interactive shell program to create an AdventureMap. To run
+	Place this file in a directory along with Game.py and GamePrint.py.
 """
 
 import GamePrint
@@ -16,6 +17,18 @@ UP = 'w'
 LEFT = 'a'
 DOWN = 's'
 RIGHT = 'd'
+
+COMMAND = {
+	"NAME" : "[n]", 
+	"DESC" : "[d]", 
+	"I_EDITOR" : "[i]",
+	"C_EDITOR" : "[c]",
+	"LOCK" : "[l]",
+	"ADD" : "[add]",
+	"DELETE" : "[del]",
+	"EXIT" : ["[exit]", "exit", "[exit"],
+	"ARB" : "arb" 
+	}
 
 EXIT = 'exit'
 NEW_ROOM = 'r'
@@ -44,6 +57,9 @@ controls = ["""'wasd'   move in desired direction""",
 
 ##------------------------------ Print Functions ------------------------------##
 
+"""
+[desc]	Clears the terminal screen.
+"""
 def clearScreen():
 	import os
 	os.system('cls' if os.name == 'nt' else 'clear')
@@ -128,6 +144,7 @@ def printStructure(structure):
 	print "\n"
 	print "=" * termWidth
 
+
 """
 [desc]	Prints just the map for a given structure. Shows rooms
 		regardless of visitation.
@@ -162,6 +179,7 @@ def printMap(structure):
 	 		line += minimap[row][col]
  		print line.center(termWidth)
 
+
 """
 [desc]	Calls printStructure(). Then prints controls
 		for navigating the MapBuilder
@@ -175,6 +193,7 @@ def printNavigation(structure):
 	print """ 'exit' leave MapBuilder""".center(termWidth)
 	print '+' * termWidth
 
+
 """
 [desc]	Calls printStructure(). Then prints controls
 		for editing the current room.
@@ -184,10 +203,14 @@ def printNavigation(structure):
 def printRoomEditor(structure):
 	printStructure(structure)
 	print 'Room Editor Controls:'.center(termWidth)
-	print """'[n]' name --- '[d]' description""".center(termWidth)
-	print """'[i]' item editor --- '[c]' charater editor --- '[l]' lock/unlock""".center(termWidth)
-	print """'[delete]' remove room --- '[exit]' exit to navigation""".center(termWidth)
+	print ("""'%s' name --- '%s' description""" % 
+			(COMMAND['NAME'], COMMAND['DESC'])).center(termWidth) 
+	print ("""'%s' item editor --- '%s' charater editor --- '%s' lock/unlock""" %
+			(COMMAND['I_EDITOR'], COMMAND['C_EDITOR'], COMMAND['LOCK'])).center(termWidth)
+	print ("""'%s' remove room --- '%s' exit to navigation""" %
+			(COMMAND['DELETE'], COMMAND['EXIT'][0])).center(termWidth)
 	print '+' * termWidth
+
 
 """
 [desc]	Calls printStructure(). Then prints controls
@@ -198,9 +221,11 @@ def printRoomEditor(structure):
 def printItemEditor(structure):
 	printStructure(structure)
 	print 'Item Editor Controls:'.center(termWidth)
-	print """'[add] Item' add item --- '[del] Item' delete item""".center(termWidth)
-	print """'[exit]' exit to Room Editor""".center(termWidth)
+	print ("""'%s Item' add item --- '%s Item' delete item""" %
+			(COMMAND['ADD'], COMMAND['DELETE'])).center(termWidth)
+	print ("""'%s' exit to Room Editor""" % COMMAND['EXIT'][0]).center(termWidth)
 	print '+' * termWidth
+
 
 """
 [desc]	Calls printStructure(). Then prints controls
@@ -211,13 +236,25 @@ def printItemEditor(structure):
 def printCharacterEditor(structure):
 	printStructure(structure)
 	print 'Character Editor Controls:'.center(termWidth)
-	print """'[name] Name' change name --- '[d] dialogue' change static dialogue""".center(termWidth)
-	print """'[delete]' remove character --- '[exit]' exit to Room Editor""".center(termWidth)
+	print ("""'%s Name' change name --- '%s dialogue' change static dialogue""" %
+			(COMMAND['NAME'], COMMAND['DESC'])).center(termWidth)
+	print ("""'%s' remove character --- '%s' exit to Room Editor""" %
+			(COMMAND['DELETE'], COMMAND['EXIT'][0])).center(termWidth)
 	print '+' * termWidth
 
 
 ##------------------------------ Control Functions ------------------------------##
 
+"""
+[desc]	Forcibly changes the 'location' inside the 
+		structure. If the location is moving into a row/col
+		that does not exist, it is created. This move is unlike
+		the Structure.attemptMove() method which ensures that only
+		valid game moves are made.
+
+[structure] Structure to be printed.
+[input] User input from terminal. Newlines stripped.
+"""
 def forceMove(structure, input):
 	r = structure.r
 	c = structure.c
@@ -267,56 +304,76 @@ def forceMove(structure, input):
 	structure.r = r
 	structure.c = c
 
+
+"""
+[desc]	Picks an editing subfunction to start based on user input. 
+		Constantly polls user input for specific editing commands.
+
+[structure] Structure to be edited
+"""
 def roomEditor(structure):
 	room = structure.layout[structure.r][structure.c]
-	ui = 'arb' #arbitrary init value
-	while ui not in ['[exit]', '[exit']:
-		if ui in ['[n]', '[d]', '[i]', '[c]', '[l]', 'arb'] and room == None:
+	ui = COMMAND['ARB'] #arbitrary init value
+	while ui not in COMMAND['EXIT']:#['[exit]', '[exit']:
+		if ui in COMMAND.values() and room == None:
 			room = Room(' -- No Room Name -- ', ' -- No Description --', [], None)
 			structure.layout[structure.r][structure.c] = room
-		if ui == '[n]':
+		if ui == COMMAND['NAME']:
 			room.name = raw_input("Enter a name: ")
-		elif ui == '[d]':
+		elif ui == COMMAND['DESC']:
 			room.desc = raw_input("Enter a description, or add one in AdventureMap.txt: \n")
-		elif ui == '[i]':
+		elif ui == COMMAND['I_EDITOR']:
 			itemEditor(structure)
-		elif ui == '[c]':
+		elif ui == COMMAND['C_EDITOR']:
 			characterEditor(structure)
-		elif ui == '[l]':
+		elif ui == COMMAND['LOCK']:
 			room.locked = not room.locked
-		elif ui == '[delete]':
+		elif ui == COMMAND['DELETE']:
 			room = None
 
 		structure.layout[structure.r][structure.c] = room
 		printRoomEditor(structure)
 		ui = raw_input()
 
+
+"""
+[desc]	Editing subfunction to edit the items in a room based
+ 		on user input. Constantly polls user input for specific commands.
+
+[structure] Structure to be edited
+"""
 def itemEditor(structure):
-	printItemEditor(structure)
-	ui = raw_input()
 	items = structure.layout[structure.r][structure.c].items
-	while ui != '[exit]':
-		if ui[0:5] == '[add]':
+	ui = COMMAND['ARB']
+	while ui not in COMMAND['EXIT']:
+		if ui[0:5] == COMMAND['ADD']:
 			items.append(ui[6:])
-		if ui[0:5] == '[del]':
+		if ui[0:5] == COMMAND['DELETE'] and ui[6:] in items:
 			items.remove(ui[6:])
 
 		structure.layout[structure.r][structure.c].items = items
 		printItemEditor(structure)
 		ui = raw_input()
 
+
+"""
+[desc]	Editing subfunction to edit the character in a room based
+ 		on user input. Constantly polls user input for specific commands.
+
+[structure] Structure to be edited
+"""
 def characterEditor(structure):
 	c = structure.layout[structure.r][structure.c].character
 	ui = 'arb' #arbitrary init value
-	while ui not in ['[exit]', '[exit']:
+	while ui not in COMMAND['EXIT']:
 		if c == None:
 			c = Character(' -- No Character Name -- ', ' -- No Dialogue --')
 			structure.layout[structure.r][structure.c].character = c
-		if ui[0:6] == '[name]':
-			c.name = ui[7:]
-		elif ui[0:3] == '[d]':
+		if ui[0:len(COMMAND['NAME'])] == COMMAND['NAME']:
+			c.name = ui[len(COMMAND['NAME']) + 1:]
+		elif ui[0:3] == COMMAND['DESC']:
 			c.dialogue = ui[4:]
-		elif ui == '[delete]':
+		elif ui == COMMAND['DELETE']:
 			c = None
 			structure.layout[structure.r][structure.c].character = c
 			break
@@ -326,12 +383,26 @@ def characterEditor(structure):
 		ui = raw_input()
 
 
+"""
+[desc]	Fairly useless function which returns the text
+		inside a chunk descriptor. Ex: '[desc]' -> 'desc'
 
+[ret]	Returns a string of the type of chunk.
+"""
 def chunkType(string):
 	if len(string) == 0 or string[0] != '[' or string[len(string) - 1] != ']':
 		return 'ERROR'
 	return string[1:len(string) - 1]
 
+
+"""
+[desc]	Extract the text inside a chunk. Ex:
+			[desc]
+			  This is the text inside
+			[end desc]  
+
+[ret]	The text inside a chunk
+"""
 def getChunk(lines):
 	if lines[0][0] != '[':
 		printc.red('ERROR -- Improper chunk passed.')
@@ -341,9 +412,13 @@ def getChunk(lines):
 		tmp += 1
 	return lines[1:tmp]
 
-def makeDescChunk(descChunk):
+
+"""
+[desc]	Takes a block of text and formas
+"""
+def makeDescChunk(description):
 	desc = ['[description]']
-	for l in descChunk:
+	for l in description:
 		desc.append(INDENT +' '+l)
 	desc.append('[end description]')
 	return desc
@@ -401,20 +476,6 @@ def makeCharacterChunk(character):
 def writeChunk(chunk, file):
 	for lines in chunk:
 		file.write(lines + '\n')
-
-def chunkType(string):
-	if len(string) == 0 or string[0] != '[' or string[len(string) - 1] != ']':
-		return 'ERROR'
-	return string[1:len(string) - 1]
-
-def getChunk(lines):
-	if lines[0][0] != '[':
-		printc.red('ERROR -- Improper chunk passed.')
-	ctype = chunkType(lines[0])
-	tmp = 0
-	while lines[tmp] != '[end ' + ctype + ']':
-		tmp += 1
-	return lines[1:tmp]
 
 
 
