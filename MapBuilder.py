@@ -19,18 +19,18 @@ DOWN = 's'
 RIGHT = 'd'
 
 COMMAND = {
-	"NAME" : "[n]", 
-	"DESC" : "[d]", 
-	"I_EDITOR" : "[i]",
-	"C_EDITOR" : "[c]",
-	"LOCK" : "[l]",
-	"ADD" : "[add]",
-	"DELETE" : "[del]",
-	"EXIT" : ["[exit]", "exit", "[exit"],
+	"NAME" : "n", 
+	"DESC" : "d", 
+	"I_EDITOR" : "i",
+	"C_EDITOR" : "c",
+	"LOCK" : "l",
+	"ADD" : "add",
+	"DELETE" : "del",
+	"EXIT" : ["exit", "e", "q"],
 	"ARB" : "arb" 
 	}
 
-EXIT = 'exit'
+EXIT = 'e'
 NEW_ROOM = 'r'
 
 INDENT = '  '
@@ -63,6 +63,7 @@ controls = ["""'wasd'   move in desired direction""",
 def clearScreen():
 	import os
 	os.system('cls' if os.name == 'nt' else 'clear')
+
 
 
 """
@@ -190,7 +191,7 @@ def printNavigation(structure):
 	printStructure(structure)
 	print 'Navigation Controls:'.center(termWidth)
 	print """ 'wasd' to move --- 'r' enter Room Editor""".center(termWidth)
-	print """ 'exit' leave MapBuilder""".center(termWidth)
+	print """ 'e' leave MapBuilder""".center(termWidth)
 	print '+' * termWidth
 
 
@@ -221,7 +222,7 @@ def printRoomEditor(structure):
 def printItemEditor(structure):
 	printStructure(structure)
 	print 'Item Editor Controls:'.center(termWidth)
-	print ("""'%s Item' add item --- '%s Item' delete item""" %
+	print ("""'%s [Item]' add item --- '%s [Item]' delete item""" %
 			(COMMAND['ADD'], COMMAND['DELETE'])).center(termWidth)
 	print ("""'%s' exit to Room Editor""" % COMMAND['EXIT'][0]).center(termWidth)
 	print '+' * termWidth
@@ -236,7 +237,7 @@ def printItemEditor(structure):
 def printCharacterEditor(structure):
 	printStructure(structure)
 	print 'Character Editor Controls:'.center(termWidth)
-	print ("""'%s Name' change name --- '%s dialogue' change static dialogue""" %
+	print ("""'%s' change name --- '%s' change static dialogue""" %
 			(COMMAND['NAME'], COMMAND['DESC'])).center(termWidth)
 	print ("""'%s' remove character --- '%s' exit to Room Editor""" %
 			(COMMAND['DELETE'], COMMAND['EXIT'][0])).center(termWidth)
@@ -244,6 +245,14 @@ def printCharacterEditor(structure):
 
 
 ##------------------------------ Control Functions ------------------------------##
+
+
+def saveMap(filename, structure, descChunk=None):
+	outfile = open(filename, "w+")
+	if descChunk != None:
+		writeChunk(makeDescChunk(descChunk), outfile)
+	writeChunk(makeStructureChunk(structure), outfile)
+	outfile.close()
 
 """
 [desc]	Forcibly changes the 'location' inside the 
@@ -333,6 +342,7 @@ def roomEditor(structure):
 
 		structure.layout[structure.r][structure.c] = room
 		printRoomEditor(structure)
+		saveMap("AdventureMap.txt", structure)
 		ui = raw_input()
 
 
@@ -344,12 +354,17 @@ def roomEditor(structure):
 """
 def itemEditor(structure):
 	items = structure.layout[structure.r][structure.c].items
-	ui = COMMAND['ARB']
+	ui = COMMAND['ARB'] #arbitrary init value
 	while ui not in COMMAND['EXIT']:
-		if ui[0:5] == COMMAND['ADD']:
-			items.append(ui[6:])
-		if ui[0:5] == COMMAND['DELETE'] and ui[6:] in items:
-			items.remove(ui[6:])
+		if ui[0:len(COMMAND['ADD'])] == COMMAND['ADD']:
+			items.append(ui[len(COMMAND['ADD']) + 1:])
+
+		if ui[0:len(COMMAND['DELETE'])] == COMMAND['DELETE']:
+			try:
+				items.remove(ui[len(COMMAND['DELETE']) + 1:])
+			except ValueError: # tried to remove non-existant list item
+				pass
+			
 
 		structure.layout[structure.r][structure.c].items = items
 		printItemEditor(structure)
@@ -364,15 +379,15 @@ def itemEditor(structure):
 """
 def characterEditor(structure):
 	c = structure.layout[structure.r][structure.c].character
-	ui = 'arb' #arbitrary init value
+	ui = COMMAND['ARB'] #arbitrary init value
 	while ui not in COMMAND['EXIT']:
 		if c == None:
 			c = Character(' -- No Character Name -- ', ' -- No Dialogue --')
 			structure.layout[structure.r][structure.c].character = c
-		if ui[0:len(COMMAND['NAME'])] == COMMAND['NAME']:
-			c.name = ui[len(COMMAND['NAME']) + 1:]
-		elif ui[0:3] == COMMAND['DESC']:
-			c.dialogue = ui[4:]
+		if ui == COMMAND['NAME']:
+			c.name = raw_input("Character name: ")
+		elif ui == COMMAND['DESC']:
+			c.dialogue = raw_input("Character dialogue: ")
 		elif ui == COMMAND['DELETE']:
 			c = None
 			structure.layout[structure.r][structure.c].character = c
@@ -559,9 +574,12 @@ def main():
 	print "\n\tPress 'enter' to begin editing:"
 	raw_input()
 
-	with open('AdventureMap.txt', 'r') as f:
-		lines = f.readlines()
-	lines = [x.strip() for x in lines] 
+	try:
+		with open('AdventureMap.txt', 'r') as f:
+			lines = f.readlines()
+		lines = [x.strip() for x in lines] 
+	except IOError:
+		lines = []
 
 	if lines == [] or chunkType(lines[0]) != 'description':
 		descChunk = ['-- insert description here --']
@@ -576,24 +594,18 @@ def main():
 		structure = loadStructure()
 
 
-	while(True):
-		printNavigation(structure)
-		ui = raw_input()
-		if ui == EXIT:
-			break
-		elif ui in [UP, LEFT, DOWN, RIGHT]:
+	ui = COMMAND['ARB']
+	while ui not in COMMAND['EXIT']:
+		if ui in [UP, LEFT, DOWN, RIGHT]:
 			forceMove(structure, ui)
 		elif ui == NEW_ROOM:
 			roomEditor(structure)
+		
+		printNavigation(structure)
+		ui = raw_input()
 
-
-	outfile = open("AdventureMap.txt", "w+")
-	writeChunk(makeDescChunk(descChunk), outfile)
-	writeChunk(makeStructureChunk(structure), outfile)
-	outfile.close()
+	saveMap("AdventureMap.txt", structure, descChunk=descChunk)
 	
-
-
 
 if __name__ == "__main__":
 	main()
