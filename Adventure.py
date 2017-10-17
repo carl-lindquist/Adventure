@@ -44,7 +44,7 @@ def gameInit():
 	# structure = Structure("The House", "3516", layout)
 	from MapBuilder import loadStructure
 	structure = loadStructure()
-	structure.setLocation(2, 2)
+	structure.setLocation(0, 0)
 	#structure.mapEnable = False
 
 	startSplash = """
