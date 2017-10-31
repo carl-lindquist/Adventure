@@ -16,11 +16,12 @@ chunk_end_pattern = re.compile("\[~(.*?)\]")
 data_pattern = re.compile("{(?!~)(.*?)}")
 data_end_pattern = re.compile(("{~(.*?)}"))
 
+
 class Chunk(object):
 
 	# I should contain a dictionary of members to access by string
 	# that way anybody can ask for implementation specific things real easy
-	tab = "  "
+	tab = "    "
 
 	def __init__(self, stream, type=None):
 		self.data = {}
@@ -44,22 +45,25 @@ class Chunk(object):
 
 		self.lines_consumed = self._load_chunks(stream[1:]) # start processing after name line
 
-	def __str__(self, depth=0):
-		# str = "-[%s]\n%s-----" % ( self.type,  ( "" if depth == 0 else " ") + self.tab*(depth+1) )
-		str = "%s[%s]" % ('-'*len(self.tab), self.type)
 
-		for key, value in self.data.items():
-			str += "\n%s|" % (self.tab*(depth+1))
-			str += " %s: %s" % (key, value)
+	def _tree(self):
+		l = []
+		l.append("%s[%s] \n" % ('='*len(self.tab), self.type)) # print my type
 
-		str += ("\n%s|" % (self.tab*(depth+1))) * 2
-		
-		if len(self.subchunks) > 0:
-			for c in self.subchunks:
-				str += "\n%s|" % (self.tab*(depth+1))
-				str += "%s" % c.__str__(depth=depth+1)
+		for key, value in self.data.items(): # print my data
+			l.append( self.tab + "| %s: %s\n" % (key, value) )
 
-		return str
+		# these guys don't end with a newline because they already have them recursively
+		for c in self.subchunks:
+			l.append( self.tab + "|\n" ) # just a spacer
+			for i in c._tree():
+				l.append("%s|" % self.tab + i) # append the subchunks
+
+		return l
+
+
+	def __str__(self):
+		return''.join(self._tree())
 
 
 	def _load_data(self, stream):
@@ -81,9 +85,7 @@ class Chunk(object):
 			chunk_end_re = chunk_end_pattern.search(stream[i])
 
 			if data_re != None: # you found a new data member
-				
 				i += self._load_data(stream[i:]) + 1
-
 				continue # re-initialize pattern recognizers at new i\
 
 			if chunk_re != None:
