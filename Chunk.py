@@ -27,10 +27,6 @@ class Chunk(object):
 		self.data = {}
 		self.subchunks = []
 		self.type = None
-		if (stream == None or len(stream) == 0):
-			print "you dingus"
-			import sys
-			sys.exit()
 
 		if type == None:
 			try:
@@ -38,12 +34,13 @@ class Chunk(object):
 			except IndexError as e1:
 				raise "Improperly formatted chunk stream while parsing chunk type."
 			except AttributeError as e2:
-				print "WARNING: Called with type set to none, and there was no name to parse"
+				print "Warning:: Called with type set to none, and there was no name to parse"
 		else:
 			self.type = type
 
-
+		# print "Creating: " + self.type
 		self.lines_consumed = self._load_chunks(stream[1:]) # start processing after name line
+		# print "Finished: " + self.type
 
 
 	def _tree(self):
@@ -79,7 +76,7 @@ class Chunk(object):
 
 	def _load_chunks(self, stream):
 		i = 0
-		while i < len(stream):
+		while (i < len(stream)):
 			chunk_re = chunk_pattern.search(stream[i])
 			data_re = data_pattern.search(stream[i])
 			chunk_end_re = chunk_end_pattern.search(stream[i])
@@ -88,19 +85,19 @@ class Chunk(object):
 				i += self._load_data(stream[i:]) + 1
 				continue # re-initialize pattern recognizers at new i\
 
-			if chunk_re != None:
-				# you found a new chunk
+			if chunk_re != None: # you found a new chunk
 				self.subchunks.append(Chunk(stream[i:], type=chunk_re.group(1)))
 				i += self.subchunks[-1].lines_consumed + 1
 
 				continue
 
-			if chunk_end_re != None:
-				i += 1
-				break
+			if chunk_end_re != None and chunk_end_re.group(1) == self.type: # you found the end of your chunk
+				return i + 1
 				
 			i += 1
 
+		if (stream[i-1] != '[~%s]' % self.type):
+			print "WARNING:: Could not find an explicit end to chunk: [%s]" % self.type
 		return i
 
 
