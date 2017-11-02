@@ -31,7 +31,7 @@ class Chunk(object):
 		if file != None:
 			with open(file) as f:
 				stream = f.readlines()
-				stream = [l.rstrip() for l in stream]
+				stream = [l.lstrip() for l in stream]
 
 		try:
 			self.type = chunk_pattern.search(stream[0]).group(1)
@@ -43,7 +43,7 @@ class Chunk(object):
 		self.lines_consumed = self._load_chunks(stream[1:]) # start processing after type line
 
 
-	def _tree(self):
+	def _tree_lines(self):
 		l = []
 		l.append("%s[%s] \n" % ('='*len(self.tab), self.type)) # print my type
 
@@ -53,14 +53,14 @@ class Chunk(object):
 		# these guys don't end with a newline because they already have them recursively
 		for c in self.subchunks:
 			l.append( self.tab + "|\n" ) # just a spacer
-			for i in c._tree():
+			for i in c._tree_lines():
 				l.append("%s|" % self.tab + i) # append the subchunks
 
 		return l
 
 
 	def __str__(self):
-		return''.join(self._tree())
+		return''.join(self._tree_lines())
 
 
 	def _load_data(self, stream):
@@ -68,7 +68,11 @@ class Chunk(object):
 		self.data[data_re.group(1)] = "" # store the name
 		i = 1
 		while i < len(stream) and data_end_pattern.search(stream[i]) == None: # fill out this data member
-			self.data[data_re.group(1)] += stream[i].lstrip()
+			if chunk_end_pattern.search(stream[i]) != None:
+				print "Warning:: Improper Format. Found chunk end \'%s\' while parsing \'{%s}\'." % (stream[i].strip(), data_re.group(1))
+				return i-1
+
+			self.data[data_re.group(1)] += stream[i].rstrip('\n') # strip away newlines for multiline support
 			i += 1
 
 		return i
@@ -103,47 +107,8 @@ class Chunk(object):
 		return i
 
 
-"""
-[structure]
-  {name} Insane Temple
-  {desc}
-     -- insert description here --
-  {/desc}
+	# def export(self, filename=None):
 
-  [room]
-    [name] So this is a great place
-    [location] 0 0
-    [desc]
-       -- No Description --
-    [/desc]
-  [/room]
-
-  [room]
-    [name] The Start
-    [location] 1 0
-    [desc]
-       -- No Description --
-    [/desc]
-  [/room]
-[/structure]
-
-
-"""
-
-
-"""
-[structure]
-	{name}
-		Carl
-	{foo}
-		bare bear beer bar bore bore 
-		score scar scare
-	[room]
-		[character]
-			someshit
-
-
-"""
 
 
 	
