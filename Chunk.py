@@ -36,7 +36,7 @@ class Chunk(object):
 		try:
 			self.type = chunk_pattern.search(stream[0]).group(1)
 		except IndexError as e1:
-			raise "Improperly formatted chunk stream while parsing chunk type."
+			print "Improperly formatted chunk stream while parsing chunk type."
 		except AttributeError as e2:
 			print "Warning:: Called with type set to none, and there was no name to parse."
 
@@ -106,8 +106,39 @@ class Chunk(object):
 
 		return i
 
+	def _export_lines(self):
+		l = []
+		l.append("[%s] \n" % (self.type)) # print my type
 
-	# def export(self, filename=None):
+		for key, value in self.data.items(): # print my data
+			l.append( self.tab + "{%s}\n" % (key) )
+			l.append( self.tab*2 + value + "\n")
+			l.append( self.tab + "{~%s}\n" % (key) )
+
+		# these guys don't end with a newline because they already have them recursively
+		for c in self.subchunks:
+			for i in c._export_lines():
+				l.append("%s" % self.tab + i) # append the subchunks
+
+		l.append("[~%s] \n" % (self.type)) # print my type
+
+		return l
+
+	def export(self, filename=None, tree=False):
+		if filename == None:
+			filename = self.type + "-chunk.txt"
+
+		l = self._export_lines()
+
+		with open(filename, 'w') as file:
+			file.writelines(l)
+			if tree == True:
+				file.write('\n\n')
+				file.writelines(self._tree_lines())
+
+
+
+
 
 
 
