@@ -21,26 +21,26 @@ class Chunk(object):
 
 	# I should contain a dictionary of members to access by string
 	# that way anybody can ask for implementation specific things real easy
-	tab = "    "
+	tab = "   "
 
-	def __init__(self, stream, type=None):
+	def __init__(self, stream=None, file=None):
 		self.data = {}
 		self.subchunks = []
-		self.type = None
+		self.type = type
 
-		if type == None:
-			try:
-				self.type = chunk_pattern.search(stream[0]).group(1)
-			except IndexError as e1:
-				raise "Improperly formatted chunk stream while parsing chunk type."
-			except AttributeError as e2:
-				print "Warning:: Called with type set to none, and there was no name to parse"
-		else:
-			self.type = type
+		if file != None:
+			with open(file) as f:
+				stream = f.readlines()
+				stream = [l.rstrip() for l in stream]
 
-		# print "Creating: " + self.type
-		self.lines_consumed = self._load_chunks(stream[1:]) # start processing after name line
-		# print "Finished: " + self.type
+		try:
+			self.type = chunk_pattern.search(stream[0]).group(1)
+		except IndexError as e1:
+			raise "Improperly formatted chunk stream while parsing chunk type."
+		except AttributeError as e2:
+			print "Warning:: Called with type set to none, and there was no name to parse."
+
+		self.lines_consumed = self._load_chunks(stream[1:]) # start processing after type line
 
 
 	def _tree(self):
@@ -83,21 +83,23 @@ class Chunk(object):
 
 			if data_re != None: # you found a new data member
 				i += self._load_data(stream[i:]) + 1
-				continue # re-initialize pattern recognizers at new i\
+				continue # re-initialize pattern recognizers at new i
 
 			if chunk_re != None: # you found a new chunk
-				self.subchunks.append(Chunk(stream[i:], type=chunk_re.group(1)))
-				i += self.subchunks[-1].lines_consumed + 1
+				self.subchunks.append(Chunk(stream=stream[i:])) # add to your subchunks
+				i += self.subchunks[-1].lines_consumed + 1 # add the number of lines that subchunk consumed
 
 				continue
 
 			if chunk_end_re != None and chunk_end_re.group(1) == self.type: # you found the end of your chunk
-				return i + 1
+				return i + 1 # return the number of lines you consumed
+
+			if chunk_end_re != None and chunk_end_re.group(1) != self.type: # you found the end of another chunk
+				print "Warning:: Improper Format. Found chunk end \'%s\' while parsing \'[%s]\'." % (stream[i].strip(), self.type)
+				return i
 				
 			i += 1
 
-		if (stream[i-1] != '[~%s]' % self.type):
-			print "WARNING:: Could not find an explicit end to chunk: [%s]" % self.type
 		return i
 
 
